@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4ac76d34ad1500748b1340257449a64d
+timeCreated: 1463467523
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - DefaultIndicatorCanvas: {instanceID: 0}
+  - DefaultIndicatorImage: {fileID: 119522, guid: fc0b563358b8c184685369d66227df11,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
