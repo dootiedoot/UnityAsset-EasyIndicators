@@ -12,12 +12,10 @@ public class TargetIndicator : MonoBehaviour
     [Tooltip("Offset position of the indicator UI from the target.")]
     public Vector3 IndicatorOffset;
 
-    [Header("Info")]
-    public bool isVisable;
-
     //  Variables
     private GameObject IndicatorPanel;
     private GameObject IndicatorImage;
+    private bool isVisable;
     
     //  References
     private ViewerIndicator _viewerIndicator;
@@ -30,6 +28,23 @@ public class TargetIndicator : MonoBehaviour
     void Start()
     {
         InitializeIndicator();
+        //foreach (TargetIndicator targets in _viewerIndicator.Targets)
+        //    Debug.Log(targets.name);
+    }
+
+    //  OnEnable/OnDisable used for pooling
+    void OnEnable()
+    {
+        if (!_viewerIndicator.Targets.Contains(this))
+            _viewerIndicator.Targets.Add(this);
+        if (IndicatorPanel != null)
+            IndicatorPanel.SetActive(true);
+    }
+
+    void OnDisable()
+    {
+        _viewerIndicator.Targets.Remove(this);
+        IndicatorPanel.SetActive(false);
     }
 
     private void InitializeIndicator()
@@ -46,9 +61,8 @@ public class TargetIndicator : MonoBehaviour
             IndicatorPanel = Instantiate(CustomIndicatorPanel, Vector2.zero, Quaternion.identity) as GameObject;
             IndicatorPanel.transform.SetParent(_viewerIndicator.DefaultIndicatorCanvas.transform);
             IndicatorImage = IndicatorPanel.GetComponent<IndicatorPanel>().IndicatorImage;
-            _viewerIndicator.Targets.Add(this);
 
-            //  EXTRA FUN STUFF
+            //  EXTRA FUN STUFF FOR DEBUGGING
             IndicatorImage.GetComponent<Image>().color = new Color(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
         }
         catch
@@ -70,28 +84,29 @@ public class TargetIndicator : MonoBehaviour
             if (_viewerIndicator.ShowOnVisable)
             {
                 //  Enable the indicator image and set it as invisable.
-                IndicatorImage.SetActive(true);
+                IndicatorPanel.SetActive(true);
                 isVisable = true;
                 //Debug.Log("Target is visable.");
                 //float distance = 250 / GetDistance(transform.position, _viewerIndicator.transform.position);
                 //Debug.Log(GetDistance(transform.position, _viewerIndicator.transform.position));
-                IndicatorImage.transform.position = targetPosOnScreen + IndicatorOffset;
+                IndicatorPanel.transform.position = targetPosOnScreen + IndicatorOffset;
                 IndicatorImage.transform.rotation = Quaternion.Euler(0, 0, 180);
                 //Indicator.transform.localScale = new Vector2(distance, distance);
             }
-            //  Disable the indicator image and set it as invisable.
             else
             {
-                IndicatorImage.SetActive(false);
+                //  Disable the indicator image and set it as invisable.
+                IndicatorPanel.SetActive(false);
                 isVisable = false;
             }
         }
         else
         {
             //  Enable the indicator image and set it as invisable.
-            IndicatorImage.SetActive(true);
+            IndicatorPanel.SetActive(true);
             isVisable = false;
 
+            //  Create a variable for the center position of the screen.
             Vector3 screenCenter = new Vector3(Screen.width, Screen.height, 0) / 2;
 
             //  Set targetPosOnScreen anchor to center instead of bottom left
@@ -129,10 +144,10 @@ public class TargetIndicator : MonoBehaviour
                 targetPosOnScreen = new Vector3(-screenBounds.x, screenBounds.x * m, 0);
 
             //  Reset the targetPosOnScreen anchor back to bottom left corner.
-            targetPosOnScreen += screenCenter;        
+            targetPosOnScreen += screenCenter;
 
             //  Assign its new position and rotation
-            IndicatorImage.transform.position = targetPosOnScreen;
+            IndicatorPanel.transform.position = targetPosOnScreen;
             IndicatorImage.transform.rotation = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg);
         }
     }
@@ -147,6 +162,7 @@ public class TargetIndicator : MonoBehaviour
         return false;
     }
 
+    //  Returns the distance between two vector3 positions. (Fast & optimized)
     private float GetDistance(Vector3 PosA, Vector3 PosB)
     {
         Vector3 heading;
@@ -159,6 +175,10 @@ public class TargetIndicator : MonoBehaviour
         return Mathf.Sqrt(distanceSquared);
     }
 
+    //  Getters/Setters
     public GameObject GetIndicatorPanel()
     { return IndicatorPanel; }
+
+    public bool IsVisable()
+    { return isVisable; }
 }

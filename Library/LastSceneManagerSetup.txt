@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Easy Offscreen/Demos/Demo1/Demo1.unity
+- path: Assets/Indicators/Demos/Demo1/Demo1.unity
   isLoaded: 1
   isActive: 1
