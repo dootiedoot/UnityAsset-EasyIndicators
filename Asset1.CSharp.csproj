@@ -65,8 +65,10 @@
   <ItemGroup>
     <Compile Include="Assets\Indicators\Demos\Demo1\Scripts\SpawnArea.cs" />
     <Compile Include="Assets\Indicators\Scripts\IndicatorPanel.cs" />
-    <Compile Include="Assets\Indicators\Scripts\TargetIndicator.cs" />
-    <Compile Include="Assets\Indicators\Scripts\ViewerIndicator.cs" />
+    <Compile Include="Assets\Indicators\Scripts\IndicatorTarget.cs" />
+    <Compile Include="Assets\Indicators\Scripts\IndicatorTargetCamera.cs" />
+    <Compile Include="Assets\Indicators\Scripts\IndicatorViewer.cs" />
+    <Compile Include="Assets\Indicators\Scripts\RandomColorAssigner.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
