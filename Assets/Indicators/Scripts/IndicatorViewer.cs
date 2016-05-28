@@ -8,43 +8,51 @@ public class IndicatorViewer : MonoBehaviour
 {
     //  User-assigned variables
     [Header("User-Assigned Variables")]
-    [Tooltip("The Canvas that will hold all the indicator UI Panels. If left empty, a Unity default Canvas will automatically be created instead.")]
-    public GameObject DefaultIndicatorCanvas;
-    [Tooltip("The global default indicator UI Panel shown on all targets. [REQUIRED]")]
+    [Tooltip("The global default panel that hold all the indicator UI for each target. Will automatically create a Canvas to house all panels.")]
     public GameObject DefaultIndicatorPanel;
+    [Tooltip("A transform in which indicator directions will be calculated from. If left emtpy, indicator directions will be calculated from the camera screen center.")]
+    public Transform Viewer;
 
     //  Settings & options
     [Header("Settings")]
     [Tooltip("Should indicators track target when it is visable to the camera?")]
-    public bool ShowOnVisable;
+    public bool ShowOnVisable = true;
+    [Tooltip("The sorting layer for all the UI. Lower value = behind UI. Higher value = front of UI")]
+    public int CanvasSortingOrder = -100;
     [Tooltip("How many seconds before indicators update their tracking. (Default: 0.01) (Higher = better performance, but more stuttering)")] [Range(0, 1)] 
     public float UpdateInterval = 0.01f;
     [Tooltip("The farthest distance indicators will reach from the top & buttom edges of the screen.")] [Range(0, 1)]
-    public float EdgeHeightDistance;
+    public float EdgeHeightDistance = 0.8f;
     [Tooltip("The farthest distance indicators will reach from the left & right edges of the screen.")] [Range(0, 1)]
-    public float EdgeWidthDistance;
+    public float EdgeWidthDistance = 0.8f;
 
     //  Info related
-    //  All the targets currently being tracked.
+    [Header("Info")]
+    [Tooltip("List containing all the targets currently being activly tracked. (Excludes inactive objects)")]
     public List<IndicatorTarget> IndicatorTargets = new List<IndicatorTarget>();
 
-    // Private variables
+    //  Variables
+    //  [Tooltip("The Canvas that will hold all the indicator UI Panels. If left empty, a Unity default Canvas will automatically be created instead.")]
+    private GameObject DefaultIndicatorCanvas;
     private Camera viewerCamera;
 
     void Awake()
     {
+        //  Assign references
         viewerCamera = GetComponent<Camera>();
 
+        //  Create canvas is if doesnt already exsist
         if (DefaultIndicatorCanvas == null)
             CreateIndicatorCanvas();   
 	}
 	
     void Start()
     {
+        //  start couroutine for updating indicators for every target.
         StartCoroutine(UpdateIndicators());
     }
 
-    //  Updates each indicator in the Targets list on a delay interval instad of every frame. (saves processing power)
+    //  Updates each indicator in the Targets list on a delay interval instad of every frame. (adjustable performance)
     IEnumerator UpdateIndicators()
     {
         while(true)
@@ -57,7 +65,7 @@ public class IndicatorViewer : MonoBehaviour
         }
     }
 
-    //  Sets up a default canvas for the indicator UI if it doesnt exsists.
+    //  Create a default canvas for the indicator panels and set parameters.
     private void CreateIndicatorCanvas()
     {
         DefaultIndicatorCanvas = new GameObject();
@@ -65,9 +73,16 @@ public class IndicatorViewer : MonoBehaviour
         DefaultIndicatorCanvas.layer = 5;
         Canvas canvas = DefaultIndicatorCanvas.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = CanvasSortingOrder;
         CanvasScaler cs = DefaultIndicatorCanvas.AddComponent<CanvasScaler>();
         cs.scaleFactor = 1;
         cs.dynamicPixelsPerUnit = 10;
         DefaultIndicatorCanvas.AddComponent<GraphicRaycaster>();
+    }
+
+    //  Getters/Setters
+    public GameObject IndicatorCanvas
+    {
+        get { return DefaultIndicatorCanvas; }
     }
 }

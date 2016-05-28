@@ -4,8 +4,8 @@ using System.Collections;
 
 public class IndicatorTargetCamera : MonoBehaviour
 {
-
     private IndicatorTarget _indicatorTarget;
+    private GameObject targetCamGO;
     private Camera targetCam;
 
     void Awake()
@@ -23,24 +23,25 @@ public class IndicatorTargetCamera : MonoBehaviour
     private void CreateTargetCamera()
     {
         //  Create empty gameobject to hold the camera
-        GameObject TargetCamGO = new GameObject();
-        TargetCamGO.name = "Indicator_TargetCam";
-        TargetCamGO.transform.SetParent(transform);
-        TargetCamGO.transform.localPosition = new Vector3(0, 0, -2);
+        targetCamGO = new GameObject();
+        targetCamGO.name = "Indicator_TargetCam";
+        //targetCamGO.transform.SetParent(transform);
+        //targetCamGO.transform.position = new Vector3(0, 0, -2) + transform.position;
 
         //  Create the render texture & set parameters
         RenderTexture renderTexture = new RenderTexture(128, 256, 16, RenderTextureFormat.ARGB32);
         renderTexture.name = "TargetCamRenderTexture";
         renderTexture.Create();
-        _indicatorTarget.IndicatorPanel.TargetCamImage.GetComponent<RawImage>().texture = renderTexture;
+        StartCoroutine(AssignRenderTexture(renderTexture));
 
         //  Create Camera and set up parameters
-        targetCam = TargetCamGO.AddComponent<Camera>();
+        targetCam = targetCamGO.AddComponent<Camera>();
         targetCam.orthographic = true;
         targetCam.orthographicSize = 1;
         targetCam.farClipPlane = 4;
         targetCam.clearFlags = CameraClearFlags.Depth;
         targetCam.targetTexture = renderTexture;
+
     }
 
     void Update()
@@ -54,6 +55,24 @@ public class IndicatorTargetCamera : MonoBehaviour
         {
             _indicatorTarget.IndicatorPanel.TargetCamImage.SetActive(true);
             targetCam.enabled = true;
+
+            //  Update camera position to target
+            targetCamGO.transform.position = new Vector3(0, 0, -2) + transform.position;
         } 
+    }
+
+    //  Using ienumerator because the indicator panel may not have been created yet thus we need to keep checking.
+    IEnumerator AssignRenderTexture(RenderTexture renderTexture)
+    {
+        //  Change color of all the indicator panel items
+        IndicatorPanel IPanel = GetComponent<IndicatorTarget>().IndicatorPanel;
+
+        while (IPanel == null)
+        {
+            IPanel = GetComponent<IndicatorTarget>().IndicatorPanel;
+            yield return null;
+        }
+
+        IPanel.TargetCamImage.GetComponent<RawImage>().texture = renderTexture;
     }
 }
