@@ -1,6 +1,7 @@
 ﻿// place this on an empty GameObject
 // the radius is defined by the GameObjects scale
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 [RequireComponent(typeof(SphereCollider))]
@@ -10,6 +11,8 @@ public class SpawnArea : MonoBehaviour
     public GameObject SpawningEntityPrefab;
     public float delayInterval;
     public int maxSpawns;
+
+    public Text statusText;
 
     // Variables
     SphereCollider sphereCol;
@@ -35,8 +38,17 @@ public class SpawnArea : MonoBehaviour
             Entity.transform.SetParent(transform);
             Entity.name = "Target: " + count;
             count++;
+
+            if (statusText != null)
+                UpdateUI(count);
+
             yield return new WaitForSeconds(delayInterval);
         }
+    }
+
+    void UpdateUI(int currentCount)
+    {
+        statusText.text = "Spawned: " + currentCount + " / " + maxSpawns;
     }
 
     // get a random position inside the Spawn Area
