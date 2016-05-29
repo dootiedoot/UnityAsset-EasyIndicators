@@ -33,6 +33,7 @@ public class SpawnArea : MonoBehaviour
         {
             GameObject Entity = Instantiate(SpawningEntityPrefab, GetRandomPosition(), Quaternion.identity) as GameObject;
             Entity.transform.SetParent(transform);
+            Entity.name = "Target: " + count;
             count++;
             yield return new WaitForSeconds(delayInterval);
         }

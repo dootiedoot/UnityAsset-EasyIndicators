@@ -9,16 +9,17 @@ public class IndicatorTarget : MonoBehaviour
     [Header("User-Assigned Variables")]
     [Tooltip("The custom indicator Panel shown only on this target. (Overrides viewer default) If left empty, the viewer default will be used instead.")]
     public GameObject CustomIndicatorPanel;
-    [Tooltip("Offset position of the indicator UI from the target.")]
-    public Vector3 OnScreenIndicatorOffset;
+    [Tooltip("Offset position of the on-screen indicator from the target. If left to 0, the indicator will be positioned at the center of the target.")]
+    public Vector2 OnScreenIndicatorOffset;
     [Tooltip("Should indicators track target when it is visable to the camera? (Overrides viewer default) If false, the viewer default will be used instead")]
     public bool ShowOnVisable;
 
     //  Variables
     private IndicatorPanel indicatorPanel;
     private bool isVisable;
+    float previousAxisPosition;             //   the last depth value of the scaling axis
     //bool isVisable { get; set; }
-    
+
     //  References
     private IndicatorViewer _viewer;
 
@@ -56,7 +57,6 @@ public class IndicatorTarget : MonoBehaviour
     //  Create & set-up the indicator panel
     private void InitializeIndicator()
     {
-
         //  If no custom indicator panel is assigned to this gameobject, the viewer default indicator panel will be used instead
         if (CustomIndicatorPanel == null)
             CustomIndicatorPanel = _viewer.DefaultIndicatorPanel;
@@ -68,6 +68,9 @@ public class IndicatorTarget : MonoBehaviour
             GameObject panel = Instantiate(CustomIndicatorPanel, Vector2.zero, Quaternion.identity) as GameObject;
             panel.transform.SetParent(_viewer.IndicatorCanvas.transform);
             indicatorPanel = panel.GetComponent<IndicatorPanel>();
+            indicatorPanel.OnScreenImage.transform.position += new Vector3(OnScreenIndicatorOffset.x, OnScreenIndicatorOffset.y, 0);     //  Set the offset position of the onscreen image.
+
+            previousAxisPosition = indicatorPanel.transform.position.z;     //  Assign the initial axis position
 
             //  Add this target to the list of targets if not already
             if (!_viewer.IndicatorTargets.Contains(this))
@@ -89,45 +92,71 @@ public class IndicatorTarget : MonoBehaviour
         //  if the target is visable on screen...
         if (OnScreen(targetPosOnScreen, ViewerCamera))
         {
-            //  if the viewer allows indicators to show when the target is visable...
+            //  Set target to visable.
+            isVisable = true;
+
+            //  if the viewer allows indicators to show when the target is visable & within indicator distance 
             if (ShowOnVisable || _viewer.ShowOnVisable)
             {
-                //  Enable the indicator image and set it as invisable.
-                indicatorPanel.gameObject.SetActive(true);
-                if (indicatorPanel.OffScreenImage != null)
-                    indicatorPanel.OffScreenImage.SetActive(false);
-                if (indicatorPanel.OnScreenImage != null)
-                    indicatorPanel.OnScreenImage.SetActive(true);
+                
+                //  Boolean to determine where or not indicator should be enabled/disabled.
+                bool EnableOnScreen = true;
 
-                isVisable = true;
+                //  Get distance from this target and viewer
+                float distanceFromViewer = GetDistance(transform.position, _viewer.transform.position);
+                
+                //  Check if indicator will disable on distance and check if distance is over the distance threshold
+                if (_viewer.DisableOnDistance && distanceFromViewer > _viewer.DisableDistance)
+                    EnableOnScreen = false;    
 
-                //  set the UI panel position to the target's position
-                indicatorPanel.transform.position = targetPosOnScreen + OnScreenIndicatorOffset;
-                //if (IndicatorPanel.OnScreenImage != null)
-                    //IndicatorPanel.OnScreenImage.transform.rotation = Quaternion.Euler(0, 0, 180);
+                //  If the on-screen indicator can be enabled, then do stuff...  
+                if (EnableOnScreen)
+                {
+                    //  Enable the indicator image.
+                    indicatorPanel.gameObject.SetActive(true);
+                    if (indicatorPanel.OffScreenImage != null)
+                        indicatorPanel.OffScreenImage.SetActive(false);
+                    if (indicatorPanel.OnScreenImage != null)
+                        indicatorPanel.OnScreenImage.SetActive(true);
+
+                    //  set the UI panel position to the target's position
+                    indicatorPanel.transform.position = targetPosOnScreen;
+
+                    //  If scaling is enabled...
+                    if (_viewer.ScaleOnDistance)
+                        UpdateScale(distanceFromViewer);
+                }
+                else
+                {
+                    //  Disable the indicator image and set it as invisable.
+                    indicatorPanel.gameObject.SetActive(false);
+                }
             }
             else
             {
                 //  Disable the indicator image and set it as invisable.
                 indicatorPanel.gameObject.SetActive(false);
-                isVisable = false;
             }
+
+               
         }
+        //  Else, traget is Off-Screen...
         else
         {
-            //  Enable the indicator image and set it as invisable.
+            // Set target as invisable.
+            isVisable = false;
+
+            //  Enable the indicator image
             indicatorPanel.gameObject.SetActive(true);
             if (indicatorPanel.OffScreenImage != null)
                 indicatorPanel.OffScreenImage.SetActive(true);
             if (indicatorPanel.OnScreenImage != null)
                 indicatorPanel.OnScreenImage.SetActive(false);
 
-            isVisable = false;
-
             //  Create a variable for the center position of the screen.
             Vector3 screenCenter = new Vector3(Screen.width, Screen.height, 0) / 2;
 
-            //  Set targetPosOnScreen anchor to center instead of bottom left
+            //  Set targetPosOnScreen anchor to the center of the screen instead of bottom left
             targetPosOnScreen -= screenCenter;
 
             //  Flip the targetPosOnScreen to correct the calculations for indicators behind the camera.
@@ -155,6 +184,7 @@ public class IndicatorTarget : MonoBehaviour
                 targetPosOnScreen = new Vector3(-screenBounds.y / m, screenBounds.y, 0);
             else
                 targetPosOnScreen = new Vector3(screenBounds.y / m, -screenBounds.y, 0);
+
             //  Check left & right
             if (targetPosOnScreen.x > screenBounds.x)
                 targetPosOnScreen = new Vector3(screenBounds.x, -screenBounds.x * m, 0);
@@ -168,6 +198,9 @@ public class IndicatorTarget : MonoBehaviour
             indicatorPanel.transform.position = targetPosOnScreen;
             if (indicatorPanel.OffScreenImage != null)
                 indicatorPanel.OffScreenImage.transform.rotation = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg);
+
+            //  Scaling
+            indicatorPanel.transform.localScale = new Vector2(1, 1);
         }
     }
 
@@ -186,12 +219,35 @@ public class IndicatorTarget : MonoBehaviour
     {
         Vector3 heading;
 
+        //  Subtracting from both vectors returns the magnitude
         heading.x = PosA.x - PosB.x;
         heading.y = PosA.y - PosB.y;
         heading.z = PosA.z - PosB.z;
 
-        float distanceSquared = heading.x * heading.x + heading.y * heading.y + heading.z * heading.z;
-        return Mathf.Sqrt(distanceSquared);
+        //  Return the sqaure root of the sum of each sqaured vector axises.
+        return Mathf.Sqrt((heading.x * heading.x) + (heading.y * heading.y) + (heading.z * heading.z));
+    }
+
+    private void UpdateScale(float distance)
+    {
+        //  If the target's indicator axis towards the camera has changed...
+        if (indicatorPanel.transform.position.z != previousAxisPosition)
+        {
+            //  Scale based on distance & set the scale based on distance
+            indicatorPanel.transform.localScale = new Vector2(10 / distance, 10 / distance);
+
+            //  If the indicator scale is lower then or equal to the minimum size... Then, set the scale to the minimum size.
+            //  Else if the indicator scale is greater or equal to the maximum size... Then, set the scale to the maximum size.
+            if (indicatorPanel.transform.localScale.x <= _viewer.MinScaleSize || indicatorPanel.transform.localScale.y <= _viewer.MinScaleSize)
+                indicatorPanel.transform.localScale = new Vector2(_viewer.MinScaleSize, _viewer.MinScaleSize);
+            else if (indicatorPanel.transform.localScale.x >= _viewer.MaxScaleSize || indicatorPanel.transform.localScale.y >= _viewer.MaxScaleSize)
+                indicatorPanel.transform.localScale = new Vector2(_viewer.MaxScaleSize, _viewer.MaxScaleSize);
+
+            //  Record the new axis position of the indicator panel
+            previousAxisPosition = indicatorPanel.transform.position.z;
+
+            //Debug.Log(distance + " : " + indicatorPanel.transform.localScale);
+        }
     }
 
     //  Getters/Setters
@@ -199,7 +255,6 @@ public class IndicatorTarget : MonoBehaviour
     {
         get { return indicatorPanel; }
     }
-
     public bool IsVisable
     {
         get { return isVisable; }

@@ -7,7 +7,6 @@ public class PlayerMotorTDS : MonoBehaviour
 {
     public Transform target;
     public float speed = 6.0F;
-    public float jumpSpeed = 8.0F;
     public float gravity = 20.0F;
 
     private Vector3 moveDirection = Vector3.zero;
@@ -20,21 +19,15 @@ public class PlayerMotorTDS : MonoBehaviour
 
     void Update()
     {
-        if (characterController.isGrounded)
-        {
-            moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 
-            //  Rotation
-            if(moveDirection != Vector3.zero && target != null)
-                target.transform.rotation = Quaternion.LookRotation(moveDirection);
+        //  Rotation
+        if(moveDirection != Vector3.zero && target != null)
+            target.transform.rotation = Quaternion.LookRotation(moveDirection);
 
-            moveDirection = transform.TransformDirection(moveDirection);
-            moveDirection *= speed;
-            
-            if (Input.GetButton("Jump"))
-                moveDirection.y = jumpSpeed;
+        moveDirection = transform.TransformDirection(moveDirection);
+        moveDirection *= speed;
 
-        }
         moveDirection.y -= gravity * Time.deltaTime;
         characterController.Move(moveDirection * Time.deltaTime);
     }
