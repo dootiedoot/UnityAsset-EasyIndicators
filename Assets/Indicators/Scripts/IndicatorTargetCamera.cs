@@ -36,25 +36,36 @@ public class IndicatorTargetCamera : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
-        //  Create the camera
-        CreateTargetCamera();
+        //  Set-up targetCamImage
+        StartCoroutine(AssignRenderTexture());
     }
 	
-    //  Creates the target camera that follows the target and 
+    //  Creates the target camera, target's RenderTexture, and set-up UI stuff 
     private void CreateTargetCamera()
     {
-        //  Create empty gameobject to hold the camera
+        //  1. Create empty gameobject to hold the camera
         targetCamGO = new GameObject("Indicator_TargetCam");
         //targetCamGO.transform.SetParent(transform);
-        //targetCamGO.transform.position = new Vector3(0, 0, -2) + transform.position;
+        //targetCamGO.transform.position = CameraOffset + transform.position;
 
-        //  Create the render texture & set parameters
-        renderTexture = new RenderTexture(TargetResolution, TargetResolution, 24, RenderTextureFormat.Default, RenderTextureReadWrite.Default);
-        renderTexture.antiAliasing = 1;
+        //  2. Create the target camera raw image for the panel
+        GameObject TargetCamImageGO = new GameObject("TargetCameraImage");
+        TargetCamImageGO.layer = 1 << 4;
+        TargetCamImageGO.transform.SetParent(_indicatorTarget.IndicatorPanel.transform);
+        TargetCamImageGO.transform.localPosition = Vector3.zero;
+        TargetCamImageGO.transform.localScale = Vector3.one;
+        _indicatorPanel.TargetCamImage = TargetCamImageGO;
+        RawImage rawImage = TargetCamImageGO.AddComponent<RawImage>();
+        rawImage.raycastTarget = false;
+
+        //  3. Create the render texture & set parameters
+        //renderTexture = new RenderTexture(TargetResolution, TargetResolution, 24, RenderTextureFormat.Default, RenderTextureReadWrite.Default);
+        //renderTexture.antiAliasing = 1;
+        renderTexture = RenderTexture.GetTemporary(TargetResolution, TargetResolution, 24, RenderTextureFormat.Default, RenderTextureReadWrite.Default, 1);
         renderTexture.name = "TargetCamRenderTexture";
-        renderTexture.Create();
+        _indicatorPanel.TargetCamImage.GetComponent<RawImage>().texture = renderTexture;
 
-        //  Create Camera and set up parameters
+        //  4. Create Camera and set up parameters
         Camera targetCamera = targetCamGO.AddComponent<Camera>();
         targetCamera.cullingMask = TargetLayer;
         targetCamera.orthographic = true;
@@ -62,39 +73,33 @@ public class IndicatorTargetCamera : MonoBehaviour
         targetCamera.farClipPlane = CameraViewDistance;
         targetCamera.clearFlags = CameraClearFlags.SolidColor;
         targetCamera.targetTexture = renderTexture;
-
-        //  Create the target camera raw image for the panel
-        GameObject TargetCamImageGO = new GameObject("TargetCameraImage");
-        TargetCamImageGO.layer = 1 << 4;
-        RawImage rawImage = TargetCamImageGO.AddComponent<RawImage>();
-        rawImage.raycastTarget = false;
-
-        //  Set-up targetCamImage
-        StartCoroutine(AssignRenderTexture(renderTexture, TargetCamImageGO));
     }
 
-    void Update()
+    void LateUpdate()
     {
-        if (_indicatorPanel != null)
+        if (_indicatorPanel != null && _indicatorPanel.TargetCamImage != null)
         {
-            if (_indicatorTarget.IsVisable && _indicatorPanel.TargetCamImage != null && _indicatorPanel.OnScreenImage != null)
+            if (_indicatorTarget.IsVisable && _indicatorPanel.OnScreenImage != null)
             {
+                //  Disable Camera
                 _indicatorTarget.IndicatorPanel.TargetCamImage.SetActive(false);
                 targetCamGO.SetActive(false);
             }
-            else if (!_indicatorTarget.IsVisable && _indicatorPanel.TargetCamImage != null && _indicatorPanel.OffScreenImage != null)
+            else if (!_indicatorTarget.IsVisable && _indicatorPanel.OffScreenImage != null)
             {
+                //  Enable Camera
                 _indicatorTarget.IndicatorPanel.TargetCamImage.SetActive(true);
                 targetCamGO.SetActive(true);
 
-                //  Update camera position to target
+                //  Update camera position/rotation to target
                 targetCamGO.transform.position = CameraOffset + transform.position;
+                //targetCamGO.transform.rotation = Quaternion.identity;
             } 
         }
     }
 
     //  Using ienumerator because the indicator panel may not have been created yet thus we need to keep checking till it exist.
-    IEnumerator AssignRenderTexture(RenderTexture renderTexture, GameObject targetCamImageGO)
+    IEnumerator AssignRenderTexture()
     {
         //  Change color of all the indicator panel items
         _indicatorPanel = GetComponent<IndicatorTarget>().IndicatorPanel;
@@ -105,11 +110,7 @@ public class IndicatorTargetCamera : MonoBehaviour
             yield return null;
         }
 
-        //  Now that the indicator panel exist, finish set-up
-        targetCamImageGO.transform.SetParent(_indicatorTarget.IndicatorPanel.transform);
-        targetCamImageGO.transform.localPosition = Vector3.zero;
-        targetCamImageGO.transform.localScale = Vector3.one;
-        _indicatorPanel.TargetCamImage = targetCamImageGO;
-        _indicatorPanel.TargetCamImage.GetComponent<RawImage>().texture = renderTexture;
+        //  Now that the indicator panel exist, create the camera
+        CreateTargetCamera();
     }
 }
