@@ -11,12 +11,10 @@ public class IndicatorViewer : MonoBehaviour
     public GameObject DefaultIndicatorPanel;
     [Tooltip("The camera that will view the indicators. If left empty, will be assigned to the main camera instead.")]
     public Camera ViewerCamera;
-    //[Tooltip("A transform in which indicator directions will be calculated from. If left emtpy, indicator directions will be calculated from this camera's position instead.")]
-    //public Transform Viewer;
 
     //  Settings & options
     [Header("Settings")]
-    [Tooltip("The sorting layer for all the UI. Lower value = behind UI. Higher value = front of UI")]
+    [Tooltip("The sorting layer for all the indicators. Lower value = behind UI. Higher value = front of UI")]
     public int CanvasSortingOrder = -100;
     [Tooltip("How many seconds before indicators update their tracking. Higher = better performance, but more stuttering")] [Range(0, 1)] 
     public float UpdateInterval = 0.015f;
@@ -24,7 +22,7 @@ public class IndicatorViewer : MonoBehaviour
     public float EdgeHeightDistance = 0.9f;
     [Tooltip("The farthest distance indicators will reach from the left & right edges of the screen.")] [Range(0, 1)]
     public float EdgeWidthDistance = 0.9f;
-    [Tooltip("Does the off-screen indicator rotate towards the target? Use for arrow-type indicators. False for portrait-style indicators")]
+    [Tooltip("Does the off-screen indicator rotate towards the target? Set True for arrow-type indicators. Set False for portrait-style indicators.")]
     public bool RotateTowardsTargetOffscreen = true;
 
     [Space(10)] [Tooltip("Should indicators track target when it is visable to the camera?")]
@@ -36,9 +34,18 @@ public class IndicatorViewer : MonoBehaviour
 
     [Space(10)] [Tooltip("Should indicators automatically scale based on the distance from the viewer?")]
     public bool AutoScale = true;
-    [Tooltip("The minimum and maximum scaling size of the indicator.")]
+    [Tooltip("The minimum and maximum X and Y scale size of the indicator.")]
     public float MinScaleSize = 0.2f;
     public float MaxScaleSize = 10;
+
+    [Space(10)]
+    [Tooltip("Should indicators animate during transitions?")]
+    public bool UseTransitionAnimation = false;
+    public float TransitionSpeed = 1;
+    public Transitions OnScreenTransition;
+    public Transitions OffScreenTransition;
+    public enum Transitions
+    { None, Fade, Rotate, RotateReverse, Scale, ScaleReverse }
 
     //  Info related
     [Header("Info")]
@@ -84,9 +91,8 @@ public class IndicatorViewer : MonoBehaviour
     private void CreateIndicatorCanvas()
     {
         //  Create gameobject that holds canvas
-        indicatorCanvas = new GameObject();
-        indicatorCanvas.name = "Indicator_Canvas";
-        indicatorCanvas.layer = 5;
+        indicatorCanvas = new GameObject("Indicator_Canvas");
+        indicatorCanvas.layer = 1 << 4;
 
         //  Create Canvas
         Canvas canvas = indicatorCanvas.AddComponent<Canvas>();

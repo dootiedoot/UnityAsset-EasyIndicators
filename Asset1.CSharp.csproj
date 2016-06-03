@@ -66,9 +66,10 @@
     <Compile Include="Assets\Indicators\Demos\Demo1- 2D Fighter\Scripts\PlayerMotor2D.cs" />
     <Compile Include="Assets\Indicators\Demos\Demo1- 2D Fighter\Scripts\Respawn.cs" />
     <Compile Include="Assets\Indicators\Demos\Demo1- 2D Fighter\Scripts\SpawnArea.cs" />
-    <Compile Include="Assets\Indicators\Demos\Demo2 - TopDownShooter\Scripts\PlayerMotorTDS.cs" />
+    <Compile Include="Assets\Indicators\Demos\Demo2 - TopDown\Scripts\PlayerMotorTDS.cs" />
+    <Compile Include="Assets\Indicators\Demos\Demo3 - Stress Test\Scripts\CameraController.cs" />
     <Compile Include="Assets\Indicators\Demos\Demo3 - Stress Test\Scripts\FPSCounter.cs" />
-    <Compile Include="Assets\Indicators\Scripts\Extras\RandomColorAssigner.cs" />
+    <Compile Include="Assets\Indicators\Scripts\Extras\IndicatorColorAssigner.cs" />
     <Compile Include="Assets\Indicators\Scripts\IndicatorPanel.cs" />
     <Compile Include="Assets\Indicators\Scripts\IndicatorTarget.cs" />
     <Compile Include="Assets\Indicators\Scripts\IndicatorTargetCamera.cs" />

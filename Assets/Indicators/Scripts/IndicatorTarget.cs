@@ -20,7 +20,9 @@ public class IndicatorTarget : MonoBehaviour
     //  Variables
     private IndicatorPanel indicatorPanel;
     private bool isVisable;
-    float previousAxisPosition;             //   the last depth value of the scaling axis. (used for scaling the indicator)
+    private float previousAxisPosition;             //  the last depth value of the scaling axis. (used for scaling the indicator)
+    private Animation offScreenAnimator;                     //  the Animation component that will do all the transition animations
+    private bool transitioning = false; 
 
     //  References
     private IndicatorViewer _viewer;
@@ -76,9 +78,13 @@ public class IndicatorTarget : MonoBehaviour
 
             //  Set the offset position of the onscreen image.
             if (indicatorPanel.OnScreenImage != null)
-                indicatorPanel.OnScreenImage.transform.position += new Vector3(OnScreenIndicatorOffset.x, OnScreenIndicatorOffset.y, 0);     
+                indicatorPanel.OnScreenImage.transform.position += new Vector3(OnScreenIndicatorOffset.x, OnScreenIndicatorOffset.y, 0);
 
-            previousAxisPosition = indicatorPanel.transform.position.z;     //  Assign the initial z position. (used for scaling the indicator)
+            //  Assign the initial z position. (used for scaling the indicator)
+            previousAxisPosition = indicatorPanel.transform.position.z;
+
+            //  Set-up animation
+            offScreenAnimator = indicatorPanel.OffScreenImage.GetComponent<Animation>();
 
             //  Add this target to the list of targets if not already
             if (!_viewer.IndicatorTargets.Contains(this))
@@ -112,11 +118,11 @@ public class IndicatorTarget : MonoBehaviour
                 //  If the on-screen indicator is within distance threshold, then do stuff...  
                 if (CheckDisableOnDistance(distanceFromViewer) == false)
                 {
-                    //  Enable the indicator image.
-                    indicatorPanel.gameObject.SetActive(true);              //  Enable Panel
-                    if (indicatorPanel.OffScreenImage != null)
-                        indicatorPanel.OffScreenImage.SetActive(false);     //  Disable Off-Screen Image
-                    indicatorPanel.OnScreenImage.SetActive(true);           //  Enable On-Screen Image
+                    //  Enable the indicator so it is visable.
+                    indicatorPanel.gameObject.SetActive(true);
+
+                    //  Enable the on-screen indicator
+                    EnableOnScreenIndicator();       
 
                     //  set the UI panel position to the target's position
                     indicatorPanel.transform.position = targetPosOnScreen;
@@ -150,11 +156,11 @@ public class IndicatorTarget : MonoBehaviour
                 //  If the off-screen indicator is within distance threshold, then do stuff...  
                 if (CheckDisableOnDistance(distanceFromViewer) == false)
                 {
-                    //  Enable the indicator if it exist
-                    indicatorPanel.gameObject.SetActive(true);              //  Enable Panel
-                    indicatorPanel.OffScreenImage.SetActive(true);          //  Enable Off-Screen Image
-                    if (indicatorPanel.OnScreenImage != null)
-                        indicatorPanel.OnScreenImage.SetActive(false);      //  Disable On-Screen Image
+                    //  Enable the indicator so it is visable.
+                    indicatorPanel.gameObject.SetActive(true);
+
+                    //  Enables the off screen indicator
+                    EnableOffScreenIndicator();
 
                     //  Update the indicator positon and rotation based on the target's position on the screen
                     UpdateOffScreen(targetPosOnScreen);
@@ -271,6 +277,52 @@ public class IndicatorTarget : MonoBehaviour
         //  Return the sqaure root of the sum of each sqaured vector axises.
         return Mathf.Sqrt((heading.x * heading.x) + (heading.y * heading.y) + (heading.z * heading.z));
     }
+
+    //  Disable Off-Screen Image, use animation if enabled
+    private void EnableOnScreenIndicator()
+    {
+        //  Off-screen
+        if (indicatorPanel.OffScreenImage != null)
+        {
+            if (_viewer.UseTransitionAnimation && indicatorPanel.OffScreenImage.activeSelf)
+            {
+                if (!transitioning)
+                {
+                    transitioning = true;
+                    offScreenAnimator.Play("DisableOffScreen", PlayMode.StopAll);
+                }
+                if (!offScreenAnimator.isPlaying)
+                {
+                    indicatorPanel.OffScreenImage.SetActive(false);
+                    transitioning = false;
+                }
+            }
+            else
+                indicatorPanel.OffScreenImage.SetActive(false);
+        }
+
+        //  On-Screen
+        indicatorPanel.OnScreenImage.SetActive(true);
+    }
+
+    //  Enable Off-Screen Image, use animation if enabled
+    private void EnableOffScreenIndicator()
+    {
+        if (_viewer.UseTransitionAnimation && !indicatorPanel.OffScreenImage.activeSelf)
+        {
+            indicatorPanel.OffScreenImage.SetActive(true);
+            offScreenAnimator["EnableOffScreen"].speed = _viewer.TransitionSpeed;
+            offScreenAnimator.Play("EnableOffScreen", PlayMode.StopAll);
+        }
+        else
+            indicatorPanel.OffScreenImage.SetActive(true);
+
+        //  Disable On-Screen Image, use animation if enabled
+        if (indicatorPanel.OnScreenImage != null)
+        {
+            indicatorPanel.OnScreenImage.SetActive(false);
+        }
+    } 
 
     //  Getters/Setters
     public IndicatorPanel IndicatorPanel
