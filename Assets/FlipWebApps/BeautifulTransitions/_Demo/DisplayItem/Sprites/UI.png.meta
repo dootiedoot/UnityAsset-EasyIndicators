@@ -1,0 +1,148 @@
+fileFormatVersion: 2
+guid: ea9b0799e8ffba048aa056f8d35fea56
+timeCreated: 1455043707
+licenseType: Store
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: BoundButtonMediumBlue
+    21300002: BoundButtonMediumYellow
+    21300004: ButtonImagesMediumArrow
+    21300006: ButtonImagesMediumCancel
+    21300008: ButtonImagesMediumFacebook
+    21300010: ButtonImagesMediumHome
+    21300012: ButtonImagesMediumLike
+    21300014: ButtonImagesMediumOk
+    21300016: ButtonImagesMediumPlay
+    21300018: ButtonImagesMediumReload
+    21300020: ButtonImagesMediumSettings
+    21300022: IconCoinLarge
+    21300024: IconCoinSmall
+    21300026: IconLock
+    21300028: NestedPanel
+    21300030: NestedPanelHighlighted
+    21300032: Panel
+    21300034: SquareButtonLargeBlue
+    21300036: SquareButtonLargeGrey
+    21300038: StarActiveBig
+    21300040: StarActiveSmall
+    21300042: StarInactiveBig
+    21300044: StarInactiveSmall
+    21300046: RoundButtonMedimBlue
+    21300048: RoundButtonMediumYellow
+    21300050: RoundButtonMediumBlue
+    21300052: ButtonSquareLargeGreen
+    21300054: ButtonSquareLargeOrange
+    21300056: RoundButtonMediumGreen
+    21300058: RoundButtonMediumRed
+    21300060: TitleBar
+    21300062: UIScrollBar
+    21300064: SquareButtonLargeGreen
+    21300066: SquareButtonLargeOrange
+    21300068: RoundButtonMediumOrange
+    21300070: LockBig
+    21300072: IconLockBig
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 7
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -1
+  maxTextureSize: 4096
+  textureSettings:
+    filterMode: -1
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  allowsAlphaSplitting: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: SquareButtonLargeBlue
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 410
+        width: 199
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5025126, y: 0.5}
+      border: {x: 98, y: 49, z: 98, w: 49}
+      outline:
+      - - {x: -100, y: 50}
+        - {x: -100, y: -46}
+        - {x: -94, y: -50}
+        - {x: 91, y: -50}
+        - {x: 99, y: -43}
+        - {x: 99, y: 44}
+        - {x: 94, y: 50}
+    - name: SquareButtonLargeGrey
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 208
+        width: 199
+        height: 98
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 98, y: 48, z: 98, w: 48}
+      outline:
+      - - {x: -99.5, y: 49}
+        - {x: -99.5, y: -46}
+        - {x: -95.5, y: -49}
+        - {x: 89.5, y: -49}
+        - {x: 99.5, y: -45}
+        - {x: 99.5, y: 40}
+        - {x: 94.5, y: 49}
+    - name: SquareButtonLargeOrange
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 308
+        width: 199
+        height: 100
+      alignment: 9
+      pivot: {x: 0.5025126, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -100, y: 50}
+        - {x: -100, y: -46}
+        - {x: -94, y: -50}
+        - {x: 91, y: -50}
+        - {x: 99, y: -43}
+        - {x: 99, y: 44}
+        - {x: 94, y: 50}
+    outline: []
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

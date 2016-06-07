@@ -9,8 +9,8 @@ public class SpawnArea : MonoBehaviour
 {
     //  User-assigned variables
     public GameObject SpawningEntityPrefab;
-    public float delayInterval;
-    public int maxSpawns;
+    public float delayInterval = 0;
+    static int maxSpawns = 10;
 
     public Text statusText;
 
@@ -26,10 +26,10 @@ public class SpawnArea : MonoBehaviour
     {
         sphereCol.isTrigger = true;
 
-        StartCoroutine(Spawn());
+        RestartSpawn();
     }
 
-    IEnumerator Spawn()
+    IEnumerator Spawn(int maxSpawns)
     {
         int count = 0;
         while(count < maxSpawns)
@@ -57,4 +57,26 @@ public class SpawnArea : MonoBehaviour
         Vector3 randomPos = Random.insideUnitSphere * sphereCol.radius + transform.position;
         return randomPos;
     }
+
+    public void RestartSpawn()
+    {
+        if (SpawningEntityPrefab != null && maxSpawns > 0)
+            StartCoroutine(Spawn(maxSpawns));
+        else
+            Debug.Log("No spawn prefab or MaxSpawns must be higher than 0.");
+    }
+
+    public void SetMaxSpawn(int amount)
+    {
+        maxSpawns = amount;
+    }
+
+    public void ResetScene()
+    {
+        #pragma warning disable 0618
+        Application.LoadLevel(Application.loadedLevel);
+        #pragma warning restore 0618
+    }
+
+    void DontDestroyOnLoad() { }
 }

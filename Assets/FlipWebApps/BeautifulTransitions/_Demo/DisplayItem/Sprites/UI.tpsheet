@@ -1,0 +1,13 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# http://www.codeandweb.com/texturepacker/unity
+#
+# Sprite sheet: UI.png (256 x 512)
+# $TexturePacker:SmartUpdate:741f7d27e2a6370a0b79c382e726f9e8:31d09f85947ff012d50ad5357c3ab4b2:64d56465927d50bb5400e4c66dc46a97$
+#
+
+SquareButtonLargeBlue;2;410;199;100;0.5025125628140703;0.5
+SquareButtonLargeGrey;2;208;199;98;0.5;0.5
+SquareButtonLargeOrange;2;308;199;100;0.5025125628140703;0.5

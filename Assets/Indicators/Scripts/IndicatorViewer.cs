@@ -18,34 +18,35 @@ public class IndicatorViewer : MonoBehaviour
     public int CanvasSortingOrder = -100;
     [Tooltip("How many seconds before indicators update their tracking. Higher = better performance, but more stuttering")] [Range(0, 1)] 
     public float UpdateInterval = 0.015f;
-    [Tooltip("The farthest distance indicators will reach from the top & buttom edges of the screen.")] [Range(0, 1)]
-    public float EdgeHeightDistance = 0.9f;
-    [Tooltip("The farthest distance indicators will reach from the left & right edges of the screen.")] [Range(0, 1)]
-    public float EdgeWidthDistance = 0.9f;
-    [Tooltip("Does the off-screen indicator rotate towards the target? Set True for arrow-type indicators. Set False for portrait-style indicators.")]
-    public bool RotateTowardsTargetOffscreen = true;
+    [Tooltip("The farthest distance indicators will reach from the screen center to the screen edges. Align slider with TargetEdgeDistance for seamless transition.")] [Range(0, 1)]
+    public float IndicatorEdgeDistance = 0.9f;
+    [Tooltip("The farthest distance the target needs to reach from the screen center to the screen edges to be considered off-screen. Align slider with IndicatorEdgeDistance for seamless transition.")] [Range(0.5f, 1)]
+    public float TargetEdgeDistance = 0.95f;
 
-    [Space(10)] [Tooltip("Should indicators track target when it is visable to the camera?")]
+    [Space(10)]
+    [Tooltip("Should indicators track target when it is visable to the camera?")]
     public bool ShowOnVisable = true;
     [Tooltip("Should target indicator be disabled when target is too far from the viewer? Enabled = better performance")]
     public bool DisableOnDistance = true;
     [Tooltip("The max distance of the target from the viewer for the target's indicator to disable.")]
     public float DisableDistance = 100;
 
-    [Space(10)] [Tooltip("Should indicators automatically scale based on the distance from the viewer?")]
+    [Space(10)]
+    [Tooltip("Does the off-screen indicator rotate towards the target? Set True for arrow-type indicators. Set False for portrait-style indicators.")]
+    public bool RotateTowardsTargetOffScreen = true;
+    [Tooltip("Should indicators automatically scale based on the distance from the viewer?")]
     public bool AutoScale = true;
     [Tooltip("The minimum and maximum X and Y scale size of the indicator.")]
     public float MinScaleSize = 0.2f;
-    public float MaxScaleSize = 10;
+    public float MaxScaleSize = 100;
 
     [Space(10)]
-    [Tooltip("Should indicators animate during transitions?")]
-    public bool UseTransitionAnimation = false;
-    public float TransitionSpeed = 1;
+    [Tooltip("The duration of the transition in seconds.")]
+    public float TransitionDuration = 0.25f;
     public Transitions OnScreenTransition;
     public Transitions OffScreenTransition;
     public enum Transitions
-    { None, Fade, Rotate, RotateReverse, Scale, ScaleReverse }
+    { None, Fade, Rotate, RotateReverse, Scale }
 
     //  Info related
     [Header("Info")]
@@ -81,7 +82,7 @@ public class IndicatorViewer : MonoBehaviour
             for (int i = 0; i < IndicatorTargets.Count; i++)
             {
                 //  Update the target's indicator
-                IndicatorTargets[i].UpdateIndicator(ViewerCamera);
+                IndicatorTargets[i].UpdateIndicator();
             }
             yield return new WaitForSeconds(UpdateInterval);
         }

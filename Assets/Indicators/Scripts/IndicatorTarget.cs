@@ -20,9 +20,9 @@ public class IndicatorTarget : MonoBehaviour
     //  Variables
     private IndicatorPanel indicatorPanel;
     private bool isVisable;
-    private float previousAxisPosition;             //  the last depth value of the scaling axis. (used for scaling the indicator)
-    private Animation offScreenAnimator;                     //  the Animation component that will do all the transition animations
-    private bool transitioning = false; 
+    private bool isOnScreenEnabled;
+    private bool isOffScreenEnabled;
+    private float previousZposition;             //  the last depth value of the scaling axis. (used for scaling the indicator)
 
     //  References
     private IndicatorViewer _viewer;
@@ -72,45 +72,63 @@ public class IndicatorTarget : MonoBehaviour
         {
             //  Create the runtime indicator object and assign it under the canvas. 
             GameObject panel = Instantiate(CustomIndicatorPanel, Vector2.zero, Quaternion.identity) as GameObject;
-            panel.name = name + " Panel";
+            panel.name = name + " indicator";
             panel.transform.SetParent(_viewer.IndicatorCanvas.transform);
             indicatorPanel = panel.GetComponent<IndicatorPanel>();
 
             //  Set the offset position of the onscreen image.
-            if (indicatorPanel.OnScreenImage != null)
-                indicatorPanel.OnScreenImage.transform.position += new Vector3(OnScreenIndicatorOffset.x, OnScreenIndicatorOffset.y, 0);
+            if (indicatorPanel.OnScreen != null)
+                indicatorPanel.OnScreen.transform.position += new Vector3(OnScreenIndicatorOffset.x, OnScreenIndicatorOffset.y, 0);
 
             //  Assign the initial z position. (used for scaling the indicator)
-            previousAxisPosition = indicatorPanel.transform.position.z;
-
-            //  Set-up animation
-            offScreenAnimator = indicatorPanel.OffScreenImage.GetComponent<Animation>();
+            previousZposition = indicatorPanel.transform.position.z;
 
             //  Add this target to the list of targets if not already
             if (!_viewer.IndicatorTargets.Contains(this))
               _viewer.IndicatorTargets.Add(this);
+
+            //  initial indicator toggle
+            if(OnScreen(_viewer.ViewerCamera.WorldToScreenPoint(transform.position), _viewer.ViewerCamera))
+            {
+                if (indicatorPanel.OnScreen != null)
+                    ToggleOnScreen(true);
+                if (indicatorPanel.OffScreen != null)
+                    ToggleOffScreen(false);
+            }
+            else
+            {
+                if (indicatorPanel.OnScreen != null)
+                    ToggleOnScreen(false);
+                if (indicatorPanel.OffScreen != null)
+                    ToggleOffScreen(true);
+            }
+
         }
         catch
         {
-            Debug.LogError("The 'DefaultIndicatorPanel' requires a UnityUI Panel Gameobject!", _viewer);
+            Debug.LogError("The 'DefaultIndicatorPanel' requires a UnityUI Panel object!", _viewer);
         }
     }
 
     //  Performs the calculations to update the position & rotation of the indicator panel of this target.
     //  Called from 'IndicatorViewer' script.
-    public void UpdateIndicator(Camera ViewerCamera)
+    public void UpdateIndicator()
     {
         //  Get the target's world position in screen coordinate position
-        Vector3 targetPosOnScreen = ViewerCamera.WorldToScreenPoint(transform.position);
+        Vector3 targetPosOnScreen = _viewer.ViewerCamera.WorldToScreenPoint(transform.position);
 
         //  if the target is visable on screen...
-        if (OnScreen(targetPosOnScreen, ViewerCamera))
+        if (OnScreen(targetPosOnScreen, _viewer.ViewerCamera))
         {
             //  Set target to visable.
             isVisable = true;
 
+            //  Disable the off-screen indicator if it exist
+            if (indicatorPanel.OffScreen != null && isOffScreenEnabled)
+                ToggleOffScreen(false);
+
             //  if the viewer allows indicators to show when the target is visable
-            if ((ShowOnVisable || _viewer.ShowOnVisable) && indicatorPanel.OnScreenImage != null)
+            if ((ShowOnVisable || _viewer.ShowOnVisable) && indicatorPanel.OnScreen != null)
             {
                 //  Get distance from this target and viewer
                 float distanceFromViewer = GetDistance(transform.position, _viewer.transform.position);
@@ -119,28 +137,37 @@ public class IndicatorTarget : MonoBehaviour
                 if (CheckDisableOnDistance(distanceFromViewer) == false)
                 {
                     //  Enable the indicator so it is visable.
-                    indicatorPanel.gameObject.SetActive(true);
+                    //indicatorPanel.gameObject.SetActive(true);
 
                     //  Enable the on-screen indicator
-                    EnableOnScreenIndicator();       
+                    if (!isOnScreenEnabled)
+                        ToggleOnScreen(true);
 
                     //  set the UI panel position to the target's position
                     indicatorPanel.transform.position = targetPosOnScreen;
 
-                    //  If scaling is enabled && if the target's indicator axis towards the camera has changed...... then perform the update indicator method
-                    if (_viewer.AutoScale && indicatorPanel.transform.position.z != previousAxisPosition)
+                    //  If OnScreen exist && scaling is enabled && if the target's indicator axis towards the camera has changed...
+                    if (_viewer.AutoScale && indicatorPanel.transform.position.z != previousZposition)
                     {
                         UpdateScale(distanceFromViewer);
 
                         //  Record the new axis position of the indicator panel
-                        previousAxisPosition = indicatorPanel.transform.position.z;
+                        previousZposition = indicatorPanel.transform.position.z;
                     }
                 }
                 else
-                    indicatorPanel.gameObject.SetActive(false);     //  Else if CheckDisableOnDistance() is true, Disable the indicator.
+                {
+                    if (isOnScreenEnabled)
+                        ToggleOnScreen(false);
+                    //indicatorPanel.gameObject.SetActive(false);     //  Else if CheckDisableOnDistance() is true, Disable the indicator.
+                }
             }
             else
-                indicatorPanel.gameObject.SetActive(false);     //  Else if ShowOnScreen is false, Disable the indicator.
+            {
+                if (indicatorPanel.OnScreen != null && isOnScreenEnabled)
+                    ToggleOnScreen(false);
+                //indicatorPanel.gameObject.SetActive(false);     //  Else if ShowOnScreen is false, Disable the indicator.
+            }
         }
         //  Else, traget is Off-Screen...
         else
@@ -148,7 +175,11 @@ public class IndicatorTarget : MonoBehaviour
             // Set target as invisable.
             isVisable = false;
 
-            if (indicatorPanel.OffScreenImage != null)
+            //  Disables the on screen indicator if it exists
+            if (indicatorPanel.OnScreen != null && isOnScreenEnabled)
+                ToggleOnScreen(false);
+
+            if (indicatorPanel.OffScreen != null)
             {
                 //  Get distance from this target and viewer
                 float distanceFromViewer = GetDistance(transform.position, _viewer.transform.position);
@@ -160,7 +191,8 @@ public class IndicatorTarget : MonoBehaviour
                     indicatorPanel.gameObject.SetActive(true);
 
                     //  Enables the off screen indicator
-                    EnableOffScreenIndicator();
+                    if (!isOffScreenEnabled)
+                        ToggleOffScreen(true);
 
                     //  Update the indicator positon and rotation based on the target's position on the screen
                     UpdateOffScreen(targetPosOnScreen);
@@ -170,19 +202,27 @@ public class IndicatorTarget : MonoBehaviour
                         UpdateScale(distanceFromViewer);
                 }
                 else
-                    indicatorPanel.gameObject.SetActive(false);     //  Else if CheckDisableOnDistance() is true, Disable the indicator.
+                {
+                    if (isOffScreenEnabled)
+                        ToggleOffScreen(false);
+                    //indicatorPanel.gameObject.SetActive(false);     //  Else if CheckDisableOnDistance() is true, Disable the indicator.
+                }
             }
             else
-                indicatorPanel.gameObject.SetActive(false);     //  Else if CheckDisableOnDistance() is true, Disable the indicator.
+            {
+                if (indicatorPanel.OffScreen != null && isOffScreenEnabled)
+                    ToggleOffScreen(false);
+                //indicatorPanel.gameObject.SetActive(false);     //  Else if CheckDisableOnDistance() is true, Disable the indicator.
+            }     
         }
     }
 
     //  Returns true if target is within the camera screen boundaries and it's near clipping plane.
     private bool OnScreen(Vector3 pos, Camera camera)
     {
-        if (pos.x < Screen.width && pos.x > 0 && 
-            pos.y < Screen.height && pos.y > 0 &&
-            pos.z > camera.nearClipPlane)
+        if (pos.x < (Screen.width * _viewer.TargetEdgeDistance) && pos.x > (Screen.width - Screen.width * _viewer.TargetEdgeDistance) && 
+            pos.y < (Screen.height * _viewer.TargetEdgeDistance) && pos.y > (Screen.height - Screen.height * _viewer.TargetEdgeDistance) &&
+            pos.z > camera.nearClipPlane && pos.z < camera.farClipPlane)
             return true;
         return false;
     }
@@ -199,8 +239,9 @@ public class IndicatorTarget : MonoBehaviour
     //  Updates the scaling of the UI based on distance provided
     private void UpdateScale(float distance)
     {
+        float newScaleSize = 10 / distance;
         //  Scale based on distance & set the scale based on distance
-        indicatorPanel.transform.localScale = new Vector2(10 / distance, 10 / distance);
+        indicatorPanel.transform.localScale = new Vector2(newScaleSize, newScaleSize);
 
         //  If the indicator scale is lower then or equal to the minimum size... Then, set the scale to the minimum size.
         //  Else if the indicator scale is greater or equal to the maximum size... Then, set the scale to the maximum size.
@@ -229,16 +270,13 @@ public class IndicatorTarget : MonoBehaviour
         float angle = Mathf.Atan2(newIndicatorPos.y, newIndicatorPos.x);
         angle -= 90 * Mathf.Deg2Rad;
 
+        //  y = mx + b (intercept forumla)
         float cos = Mathf.Cos(angle);
         float sin = Mathf.Sin(angle);
-
-        //targetPosOnScreen = screenCenter + new Vector3(sin * 150, cos * 150, 0);
-
-        //  y = mx + b (intercept forumla)
         float m = cos / sin;
 
         //  Create the screen boundaries that the indicators reside in.
-        Vector3 screenBounds = new Vector3(screenCenter.x * _viewer.EdgeWidthDistance, screenCenter.y * _viewer.EdgeHeightDistance);
+        Vector3 screenBounds = new Vector3(screenCenter.x * _viewer.IndicatorEdgeDistance, screenCenter.y * _viewer.IndicatorEdgeDistance);
 
         //  Check which screen side the target is currently in.
         //  Check top & bottom
@@ -258,10 +296,10 @@ public class IndicatorTarget : MonoBehaviour
 
         //  Assign its new position and rotation
         indicatorPanel.transform.position = new Vector3(newIndicatorPos.x, newIndicatorPos.y, targetPosOnScreen.z);
-        if (_viewer.RotateTowardsTargetOffscreen)
-            indicatorPanel.OffScreenImage.transform.rotation = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg);
+        if (_viewer.RotateTowardsTargetOffScreen)
+            indicatorPanel.OffScreen.transform.rotation = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg);
         else
-            indicatorPanel.OffScreenImage.transform.rotation = Quaternion.Euler(0, 0, 0);
+            indicatorPanel.OffScreen.transform.rotation = Quaternion.Euler(0, 0, 0);
     }
 
     //  Returns the distance magnitude between two vector3 positions. (Faster then built-in Vector3.Distance function)
@@ -278,49 +316,89 @@ public class IndicatorTarget : MonoBehaviour
         return Mathf.Sqrt((heading.x * heading.x) + (heading.y * heading.y) + (heading.z * heading.z));
     }
 
-    //  Disable Off-Screen Image, use animation if enabled
-    private void EnableOnScreenIndicator()
+    //  Toggle On-Screen indicator
+    private void ToggleOnScreen(bool enable)
     {
-        //  Off-screen
-        if (indicatorPanel.OffScreenImage != null)
+        if (enable)
         {
-            if (_viewer.UseTransitionAnimation && indicatorPanel.OffScreenImage.activeSelf)
+            isOnScreenEnabled = true;
+            indicatorPanel.OnScreen.SetActive(true);
+
+            switch (_viewer.OnScreenTransition)
             {
-                if (!transitioning)
-                {
-                    transitioning = true;
-                    offScreenAnimator.Play("DisableOffScreen", PlayMode.StopAll);
-                }
-                if (!offScreenAnimator.isPlaying)
-                {
-                    indicatorPanel.OffScreenImage.SetActive(false);
-                    transitioning = false;
-                }
+                case IndicatorViewer.Transitions.Fade:
+                    break;
+                case IndicatorViewer.Transitions.Rotate:
+                    break;
+                case IndicatorViewer.Transitions.RotateReverse:
+                    break;
+                case IndicatorViewer.Transitions.Scale:
+                    indicatorPanel.ScaleTransition(indicatorPanel.OnScreen.transform, Vector3.zero, Vector3.one, _viewer.TransitionDuration);
+                    break;
             }
-            else
-                indicatorPanel.OffScreenImage.SetActive(false);
-        }
-
-        //  On-Screen
-        indicatorPanel.OnScreenImage.SetActive(true);
-    }
-
-    //  Enable Off-Screen Image, use animation if enabled
-    private void EnableOffScreenIndicator()
-    {
-        if (_viewer.UseTransitionAnimation && !indicatorPanel.OffScreenImage.activeSelf)
-        {
-            indicatorPanel.OffScreenImage.SetActive(true);
-            offScreenAnimator["EnableOffScreen"].speed = _viewer.TransitionSpeed;
-            offScreenAnimator.Play("EnableOffScreen", PlayMode.StopAll);
         }
         else
-            indicatorPanel.OffScreenImage.SetActive(true);
-
-        //  Disable On-Screen Image, use animation if enabled
-        if (indicatorPanel.OnScreenImage != null)
         {
-            indicatorPanel.OnScreenImage.SetActive(false);
+            isOnScreenEnabled = false;
+
+            switch (_viewer.OnScreenTransition)
+            {
+                case IndicatorViewer.Transitions.None:
+                    indicatorPanel.OnScreen.SetActive(false);
+                    break;
+                case IndicatorViewer.Transitions.Fade:
+                    break;
+                case IndicatorViewer.Transitions.Rotate:
+                    break;
+                case IndicatorViewer.Transitions.RotateReverse:
+                    break;
+                case IndicatorViewer.Transitions.Scale:
+                    indicatorPanel.ScaleTransition(indicatorPanel.OnScreen.transform, Vector3.one, Vector3.zero, _viewer.TransitionDuration);
+                    break;
+            }
+        }
+    }
+
+    //  //  Toggle Off-Screen indicator
+    private void ToggleOffScreen(bool enable)
+    {
+        if (enable)
+        {
+            isOffScreenEnabled = true;
+            indicatorPanel.OffScreen.SetActive(true);
+
+            switch (_viewer.OffScreenTransition)
+            {
+                case IndicatorViewer.Transitions.Fade:
+                    break;
+                case IndicatorViewer.Transitions.Rotate:
+                    break;
+                case IndicatorViewer.Transitions.RotateReverse:
+                    break;
+                case IndicatorViewer.Transitions.Scale:
+                    indicatorPanel.ScaleTransition(indicatorPanel.OffScreen.transform, Vector3.zero, Vector3.one, _viewer.TransitionDuration);
+                    break;
+            }
+        }
+        else
+        {
+            isOffScreenEnabled = false;
+
+            switch (_viewer.OffScreenTransition)
+            {
+                case IndicatorViewer.Transitions.None:
+                    indicatorPanel.OffScreen.SetActive(false);
+                    break;
+                case IndicatorViewer.Transitions.Fade:
+                    break;
+                case IndicatorViewer.Transitions.Rotate:
+                    break;
+                case IndicatorViewer.Transitions.RotateReverse:
+                    break;
+                case IndicatorViewer.Transitions.Scale:
+                    indicatorPanel.ScaleTransition(indicatorPanel.OffScreen.transform, Vector3.one, Vector3.zero, _viewer.TransitionDuration);
+                    break;
+            }
         }
     } 
 
