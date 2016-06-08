@@ -24,9 +24,7 @@ public class IndicatorTargetCamera : MonoBehaviour
     private IndicatorTarget _indicatorTarget;
     private IndicatorPanel _indicatorPanel;
     private GameObject targetCamGO;
-    //private Camera targetCamera;
-    private GameObject targetCameraImage;
-    private RenderTexture renderTexture;
+    private GameObject targetCameraIndicator;
 
     void Awake()
     {
@@ -46,25 +44,25 @@ public class IndicatorTargetCamera : MonoBehaviour
     {
         //  1. Create empty gameobject to hold the camera
         targetCamGO = new GameObject("Indicator_TargetCam");
-        //targetCamGO.transform.SetParent(transform);
-        //targetCamGO.transform.position = CameraOffset + transform.position;
+        targetCamGO.transform.SetParent(transform);
+        targetCamGO.transform.position = CameraOffset + transform.position;
 
         //  2. Create the target camera raw image for the panel
-        GameObject TargetCamImageGO = new GameObject("TargetCameraImage");
-        TargetCamImageGO.layer = 1 << 4;
-        TargetCamImageGO.transform.SetParent(_indicatorTarget.IndicatorPanel.transform);
-        TargetCamImageGO.transform.localPosition = Vector3.zero;
-        TargetCamImageGO.transform.localScale = Vector3.one;
-        _indicatorPanel.TargetCam = TargetCamImageGO;
-        RawImage rawImage = TargetCamImageGO.AddComponent<RawImage>();
+        targetCameraIndicator = new GameObject("TargetCameraImage");
+        targetCameraIndicator.layer = 1 << 4;
+        targetCameraIndicator.transform.SetParent(_indicatorTarget.IndicatorPanel.OffScreen.transform);
+        targetCameraIndicator.transform.localPosition = Vector3.zero;
+        targetCameraIndicator.transform.localScale = Vector3.one;
+        //_indicatorPanel.TargetCam = targetCameraIndicator;
+        RawImage rawImage = targetCameraIndicator.AddComponent<RawImage>();
         rawImage.raycastTarget = false;
 
         //  3. Create the render texture & set parameters
         //renderTexture = new RenderTexture(TargetResolution, TargetResolution, 24, RenderTextureFormat.Default, RenderTextureReadWrite.Default);
         //renderTexture.antiAliasing = 1;
-        renderTexture = RenderTexture.GetTemporary(TargetResolution, TargetResolution, 24, RenderTextureFormat.Default, RenderTextureReadWrite.Default, 1);
+        RenderTexture renderTexture = RenderTexture.GetTemporary(TargetResolution, TargetResolution, 24, RenderTextureFormat.Default, RenderTextureReadWrite.Default, 1);
         renderTexture.name = "TargetCamRenderTexture";
-        _indicatorPanel.TargetCam.GetComponent<RawImage>().texture = renderTexture;
+        targetCameraIndicator.GetComponent<RawImage>().texture = renderTexture;
 
         //  4. Create Camera and set up parameters
         Camera targetCamera = targetCamGO.AddComponent<Camera>();
@@ -78,23 +76,24 @@ public class IndicatorTargetCamera : MonoBehaviour
 
     void LateUpdate()
     {
-        if (_indicatorPanel != null && _indicatorPanel.TargetCam != null)
+        if (_indicatorPanel != null && targetCamGO != null)
         {
             if (_indicatorTarget.IsVisable && _indicatorPanel.OnScreen != null)
             {
                 //  Disable Camera
-                _indicatorTarget.IndicatorPanel.TargetCam.SetActive(false);
+                //targetCameraIndicator.SetActive(false);
                 targetCamGO.SetActive(false);
             }
             else if (!_indicatorTarget.IsVisable && _indicatorPanel.OffScreen != null)
             {
                 //  Enable Camera
-                _indicatorTarget.IndicatorPanel.TargetCam.SetActive(true);
+                //targetCameraIndicator.SetActive(true);
                 targetCamGO.SetActive(true);
 
                 //  Update camera position/rotation to target
                 targetCamGO.transform.position = CameraOffset + transform.position;
-                //targetCamGO.transform.rotation = Quaternion.identity;
+                targetCamGO.transform.rotation = Quaternion.identity;
+                targetCameraIndicator.transform.rotation = Quaternion.identity;
             } 
         }
     }

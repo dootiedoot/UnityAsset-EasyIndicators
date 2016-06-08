@@ -63,37 +63,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\DisplayItem\Components\DisplayItemSetInitialState.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\DisplayItem\DisplayItemHelper.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Helper\Perlin.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Helper\ShakeHelper.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Helper\TweenMethods.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\ShakeCamera\Components\ShakeCamera.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\Camera\FadeCamera.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\Camera\TransitionCameraBase.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\Camera\WipeCamera.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\GameObject\TransitionAnimation.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\GameObject\TransitionFade.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\GameObject\TransitionGameObjectBase.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\GameObject\TransitionMove.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\GameObject\TransitionMoveAnchoredPosition.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\GameObject\TransitionMoveTraget.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\GameObject\TransitionRotate.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\GameObject\TransitionScale.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\Screen\FadeScreen.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\Screen\TransitionScreenBase.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\Screen\WipeScreen.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\TransitionBase.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\TransitionHelper.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\Scripts\Transitions\TransitionManager.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\_Demo\DisplayItem\Scripts\TestController.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\_Demo\Transitions\Scripts\ScreenCameraController.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\_Demo\Transitions\Scripts\TestController.cs" />
-    <Compile Include="Assets\FlipWebApps\BeautifulTransitions\_Demo\Transitions\Scripts\TransitionEvents.cs" />
     <Compile Include="Assets\Indicators\Demos\Demo1- 2D Fighter\Scripts\PlayerMotor2D.cs" />
     <Compile Include="Assets\Indicators\Demos\Demo1- 2D Fighter\Scripts\Respawn.cs" />
     <Compile Include="Assets\Indicators\Demos\Demo1- 2D Fighter\Scripts\SpawnArea.cs" />
-    <Compile Include="Assets\Indicators\Demos\Demo2 - TopDown\Scripts\PlayerMotorTDS.cs" />
+    <Compile Include="Assets\Indicators\Demos\Demo2 - TopDown\Scripts\PlayerMotorTD.cs" />
     <Compile Include="Assets\Indicators\Demos\Demo3 - Stress Test\Scripts\CameraController.cs" />
     <Compile Include="Assets\Indicators\Demos\Demo3 - Stress Test\Scripts\FPSCounter.cs" />
     <Compile Include="Assets\Indicators\Scripts\Extras\IndicatorColorAssigner.cs" />
@@ -101,12 +74,6 @@
     <Compile Include="Assets\Indicators\Scripts\IndicatorPanel.cs" />
     <Compile Include="Assets\Indicators\Scripts\IndicatorTarget.cs" />
     <Compile Include="Assets\Indicators\Scripts\IndicatorViewer.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\FlipWebApps\BeautifulTransitions\Readme - Beautiful Transitions.txt" />
-    <None Include="Assets\FlipWebApps\BeautifulTransitions\Resources\Shaders\FadeCamera.shader" />
-    <None Include="Assets\FlipWebApps\BeautifulTransitions\Resources\Shaders\WipeCamera.shader" />
-    <None Include="Assets\FlipWebApps\BeautifulTransitions\Resources\Shaders\WipeScreen.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

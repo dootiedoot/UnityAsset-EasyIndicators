@@ -319,6 +319,7 @@ public class IndicatorTarget : MonoBehaviour
     //  Toggle On-Screen indicator
     private void ToggleOnScreen(bool enable)
     {
+        //  Set its enabled state, enable/disable its gameobject, then determine which animation to use based on viewer settings
         if (enable)
         {
             isOnScreenEnabled = true;
@@ -327,6 +328,7 @@ public class IndicatorTarget : MonoBehaviour
             switch (_viewer.OnScreenTransition)
             {
                 case IndicatorViewer.Transitions.Fade:
+                    indicatorPanel.FadeTransition(indicatorPanel.OnScreen.transform, 1, _viewer.TransitionDuration);
                     break;
                 case IndicatorViewer.Transitions.Rotate:
                     break;
@@ -347,6 +349,7 @@ public class IndicatorTarget : MonoBehaviour
                     indicatorPanel.OnScreen.SetActive(false);
                     break;
                 case IndicatorViewer.Transitions.Fade:
+                    indicatorPanel.FadeTransition(indicatorPanel.OnScreen.transform, 0, _viewer.TransitionDuration);
                     break;
                 case IndicatorViewer.Transitions.Rotate:
                     break;
@@ -362,14 +365,16 @@ public class IndicatorTarget : MonoBehaviour
     //  //  Toggle Off-Screen indicator
     private void ToggleOffScreen(bool enable)
     {
+        // Set its enabled state, enable/ disable its gameobject, then determine which animation to use based on viewer settings
         if (enable)
         {
             isOffScreenEnabled = true;
             indicatorPanel.OffScreen.SetActive(true);
-
+            
             switch (_viewer.OffScreenTransition)
             {
                 case IndicatorViewer.Transitions.Fade:
+                    indicatorPanel.FadeTransition(indicatorPanel.OffScreen.transform, 1, _viewer.TransitionDuration);
                     break;
                 case IndicatorViewer.Transitions.Rotate:
                     break;
@@ -390,6 +395,7 @@ public class IndicatorTarget : MonoBehaviour
                     indicatorPanel.OffScreen.SetActive(false);
                     break;
                 case IndicatorViewer.Transitions.Fade:
+                    indicatorPanel.FadeTransition(indicatorPanel.OffScreen.transform, 0, _viewer.TransitionDuration);
                     break;
                 case IndicatorViewer.Transitions.Rotate:
                     break;

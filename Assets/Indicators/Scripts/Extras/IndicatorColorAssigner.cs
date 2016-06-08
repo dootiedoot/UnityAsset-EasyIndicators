@@ -58,7 +58,14 @@ public class IndicatorColorAssigner : MonoBehaviour
             IPanel = GetComponent<IndicatorTarget>().IndicatorPanel;
             yield return null;
         }
-        
+
+        //  Changes all graphic colors
+        Graphic[] graphics = IPanel.GetComponentsInChildren<Graphic>(true);
+        if (graphics.Length > 0)
+            for (int i = 0; i < graphics.Length; i++)
+                graphics[i].color = newColor;
+
+        /*
         //  Changes all image colors
         Image[] images = IPanel.GetComponentsInChildren<Image>(true);
         for (int i = 0; i < images.Length; i++)
@@ -68,5 +75,6 @@ public class IndicatorColorAssigner : MonoBehaviour
         Text[] texts = IPanel.GetComponentsInChildren<Text>(true);
         for (int i = 0; i < texts.Length; i++)
             texts[i].color = newColor;
+            */
     }
 }
