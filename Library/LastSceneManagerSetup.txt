@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Indicators/Demos/Demo3 - Stress Test.unity
+- path: Assets/Indicators/Demos/Test.unity
   isLoaded: 1
   isActive: 1

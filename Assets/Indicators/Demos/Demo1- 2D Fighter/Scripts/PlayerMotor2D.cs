@@ -1,74 +1,122 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Prime31;
 
-// This script requires a character controller to be attached
-[RequireComponent(typeof(CharacterController))]
 public class PlayerMotor2D : MonoBehaviour
 {
-    // Attributes
-    public float MoveSpeed = 6.0f;
-    public float jumpSpeed = 8.0f;
-    public float gravity = 20.0f;
+    // movement config
+    public Transform rotateTarget;
+    public float gravity = -25f;
+    public float runSpeed = 8f;
+    public float groundDamping = 20f; // how fast do we change direction? higher means faster
+    public float inAirDamping = 5f;
+    public float jumpHeight = 3f;
 
-    //  References
-    private CharacterController CharacterController;
-    private Vector3 moveDirection = Vector3.zero;
-    public bool CanDoubleJump;
+    [HideInInspector]
+    private float normalizedHorizontalSpeed = 0;
+
+    private CharacterController2D _controller;
+    private RaycastHit2D _lastControllerColliderHit;
+    private Vector3 _velocity;
+
 
     void Awake()
     {
-        CharacterController = GetComponent<CharacterController>();
+        _controller = GetComponent<CharacterController2D>();
+
+        // listen to some events for illustration purposes
+        _controller.onControllerCollidedEvent += onControllerCollider;
+        _controller.onTriggerEnterEvent += onTriggerEnterEvent;
+        _controller.onTriggerExitEvent += onTriggerExitEvent;
     }
 
-    void Start()
+
+    #region Event Listeners
+
+    void onControllerCollider(RaycastHit2D hit)
     {
-        transform.localRotation = Quaternion.Euler(0, 90, 0);
+        // bail out on plain old ground hits cause they arent very interesting
+        if (hit.normal.y == 1f)
+            return;
+
+        // logs any collider hits if uncommented. it gets noisy so it is commented out for the demo
+        //Debug.Log( "flags: " + _controller.collisionState + ", hit.normal: " + hit.normal );
     }
 
-    void FixedUpdate()
+
+    void onTriggerEnterEvent(Collider2D col)
     {
-
-        //  Input direction
-        moveDirection = new Vector3(Input.GetAxis("Horizontal"), moveDirection.y, 0);
-
-        //  Left/Right speed
-        moveDirection.x *= MoveSpeed;
-
-        //  Jump & double jump
-        if (CharacterController.isGrounded)
+        //Debug.Log("onTriggerEnterEvent: " + col.gameObject.name);
+        if (col.GetComponent<Respawn>())
         {
-            if (Input.GetButtonDown("Jump"))
-            {
-                moveDirection.y = jumpSpeed;
-                //Debug.Log("Jumped!");
-            }
-
-            CanDoubleJump = true;
+            transform.position = col.GetComponent<Respawn>().RespawnNode.position;
         }
-        else if(!CharacterController.isGrounded && CanDoubleJump)
+    }
+
+
+    void onTriggerExitEvent(Collider2D col)
+    {
+        //Debug.Log("onTriggerExitEvent: " + col.gameObject.name);
+    }
+
+    #endregion
+
+
+    // the Update loop contains a very simple example of moving the character around and controlling the animation
+    void Update()
+    {
+        if (_controller.isGrounded)
+            _velocity.y = 0;
+
+        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
         {
-            if (Input.GetButtonDown("Jump"))
-            {
-                moveDirection.y = jumpSpeed;
-                //Debug.Log("Double Jumped!");
+            normalizedHorizontalSpeed = 1;
+            if (transform.localScale.x < 0f)
+                transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
 
-                CanDoubleJump = false;
-            }
+            rotateTarget.eulerAngles = new Vector3(0, 90, 0);
+
         }
-
-        //  Rotation
-        if (moveDirection.x < 0)
+        else if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
         {
-            transform.localRotation = Quaternion.Euler(0, -90, 0);
+            normalizedHorizontalSpeed = -1;
+            if (transform.localScale.x > 0f)
+                transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
+
+            rotateTarget.eulerAngles = new Vector3(0, 90, 0);
         }
-        else if (moveDirection.x > 0)
+        else
         {
-            transform.localRotation = Quaternion.Euler(0, 90, 0);
+            normalizedHorizontalSpeed = 0;
+
         }
 
-        //  Gravity
-        moveDirection.y -= gravity * Time.deltaTime;
 
-        CharacterController.Move(moveDirection * Time.deltaTime);
+        // we can only jump whilst grounded
+        if (_controller.isGrounded && Input.GetKeyDown(KeyCode.Space))
+        {
+            _velocity.y = Mathf.Sqrt(2f * jumpHeight * -gravity);
+        }
+
+
+        // apply horizontal speed smoothing it. dont really do this with Lerp. Use SmoothDamp or something that provides more control
+        var smoothedMovementFactor = _controller.isGrounded ? groundDamping : inAirDamping; // how fast do we change direction?
+        _velocity.x = Mathf.Lerp(_velocity.x, normalizedHorizontalSpeed * runSpeed, Time.deltaTime * smoothedMovementFactor);
+
+        // apply gravity before moving
+        _velocity.y += gravity * Time.deltaTime;
+
+        // if holding down bump up our movement amount and turn off one way platform detection for a frame.
+        // this lets uf jump down through one way platforms
+        if (_controller.isGrounded && (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)))
+        {
+            _velocity.y *= 3f;
+            _controller.ignoreOneWayPlatformsThisFrame = true;
+        }
+
+        _controller.move(_velocity * Time.deltaTime);
+
+        // grab our current _velocity to use as a base for all calculations
+        _velocity = _controller.velocity;
     }
 }

@@ -36,6 +36,7 @@ public class IndicatorViewer : MonoBehaviour
     public bool RotateTowardsTargetOffScreen = true;
     [Tooltip("Should indicators automatically scale based on the distance from the viewer?")]
     public bool AutoScale = true;
+    public float ScalingFactor = 10;
     [Tooltip("The minimum and maximum X and Y scale size of the indicator.")]
     public float MinScaleSize = 0.2f;
     public float MaxScaleSize = 100;
@@ -43,8 +44,10 @@ public class IndicatorViewer : MonoBehaviour
     [Space(10)]
     [Tooltip("The duration of the transition in seconds.")]
     public float TransitionDuration = 0.25f;
-    public Transitions OnScreenTransition;
-    public Transitions OffScreenTransition;
+    public Transitions OnScreenEnableTransition;
+    public Transitions OnScreenDisableTransition;
+    public Transitions OffScreenEnableTransition;
+    public Transitions OffScreenDisableTransition;
     public enum Transitions
     { None, Fade, Rotate, RotateReverse, Scale }
 
@@ -88,6 +91,8 @@ public class IndicatorViewer : MonoBehaviour
         }
     }
 
+    #region Create the indicator canvas
+
     //  Create a default canvas for the indicator panels and set parameters.
     private void CreateIndicatorCanvas()
     {
@@ -106,6 +111,8 @@ public class IndicatorViewer : MonoBehaviour
         cs.dynamicPixelsPerUnit = 10;
         indicatorCanvas.AddComponent<GraphicRaycaster>();
     }
+
+    #endregion
 
     //  Getters/Setters
     public GameObject IndicatorCanvas

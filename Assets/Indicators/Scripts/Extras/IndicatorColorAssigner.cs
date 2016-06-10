@@ -10,7 +10,7 @@ public class IndicatorColorAssigner : MonoBehaviour
     //  Settings & options
     [Header("Settings")]
     [Tooltip("The color of the indicator.")]
-    public Color NewColor = Color.red;
+    public Color Color = Color.red;
     [Tooltip("Use a random color. Will override 'NewColor'")]
     public bool RandomColor = false;
     [Tooltip("Should this gameobject be set to the new color?")]
@@ -22,16 +22,21 @@ public class IndicatorColorAssigner : MonoBehaviour
     // Use this for initialization
 	void Start ()
     {
+        ChangeColor(Color);
+    }
+
+    public void ChangeColor(Color newColor)
+    {
         //  Get a new random color if enabled
         if (RandomColor)
-            NewColor = new Color(UnityEngine.Random.Range(0f, 1f), Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
+            newColor = new Color(UnityEngine.Random.Range(0f, 1f), Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
 
         //  Change color of this gameobject.
         if (ChangeGameobjectColor)
         {
             //  Gameobject
             if (GetComponent<Renderer>() != null)
-                GetComponent<Renderer>().material.color = NewColor;
+                GetComponent<Renderer>().material.color = newColor;
         }
 
         //  Change color of this gameobject's children
@@ -39,16 +44,16 @@ public class IndicatorColorAssigner : MonoBehaviour
         {
             Renderer[] renders = GetComponentsInChildren<Renderer>(true);
             for (int i = 0; i < renders.Length; i++)
-                renders[i].material.color = NewColor;    
+                renders[i].material.color = newColor;
         }
 
         //  Change the indicator color if it exsist
         if (GetComponent<IndicatorTarget>() != null)
-            StartCoroutine(ChangeColor(NewColor));
+            StartCoroutine(CoChangeColor(newColor));
     }
 
     //  Using ienumerator because the indicator panel may not have been created yet thus we need to keep checking. Will stop when color is finally changed.
-    IEnumerator ChangeColor(Color newColor)
+    IEnumerator CoChangeColor(Color newColor)
     {
         //  Change color of all the indicator panel items
         IndicatorPanel IPanel = GetComponent<IndicatorTarget>().IndicatorPanel;
@@ -64,17 +69,5 @@ public class IndicatorColorAssigner : MonoBehaviour
         if (graphics.Length > 0)
             for (int i = 0; i < graphics.Length; i++)
                 graphics[i].color = newColor;
-
-        /*
-        //  Changes all image colors
-        Image[] images = IPanel.GetComponentsInChildren<Image>(true);
-        for (int i = 0; i < images.Length; i++)
-            images[i].color = newColor;
-
-        //  Change all text colors
-        Text[] texts = IPanel.GetComponentsInChildren<Text>(true);
-        for (int i = 0; i < texts.Length; i++)
-            texts[i].color = newColor;
-            */
     }
 }

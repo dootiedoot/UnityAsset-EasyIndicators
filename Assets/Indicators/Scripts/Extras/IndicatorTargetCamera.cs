@@ -38,7 +38,9 @@ public class IndicatorTargetCamera : MonoBehaviour
         //  Set-up targetCamImage
         StartCoroutine(AssignRenderTexture());
     }
-	
+
+    #region Create the target camera and indicator camera
+
     //  Creates the target camera, target's RenderTexture, and set-up UI stuff 
     private void CreateTargetCamera()
     {
@@ -73,6 +75,8 @@ public class IndicatorTargetCamera : MonoBehaviour
         targetCamera.clearFlags = CameraClearFlags.SolidColor;
         targetCamera.targetTexture = renderTexture;
     }
+
+    #endregion
 
     void LateUpdate()
     {

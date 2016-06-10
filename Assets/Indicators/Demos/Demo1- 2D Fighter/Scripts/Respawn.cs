@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(BoxCollider))]
 public class Respawn : MonoBehaviour
 {
     public Transform RespawnNode;
