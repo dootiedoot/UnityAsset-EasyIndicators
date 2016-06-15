@@ -63,19 +63,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Indicators\Demos\Demo1- 2D Fighter\Scripts\CharacterController2D.cs" />
-    <Compile Include="Assets\Indicators\Demos\Demo1- 2D Fighter\Scripts\PlayerMotor2D.cs" />
-    <Compile Include="Assets\Indicators\Demos\Demo1- 2D Fighter\Scripts\Respawn.cs" />
-    <Compile Include="Assets\Indicators\Demos\Demo1- 2D Fighter\Scripts\SetPlayer.cs" />
-    <Compile Include="Assets\Indicators\Demos\Demo2 - TopDown\Scripts\PlayerMotorTD.cs" />
-    <Compile Include="Assets\Indicators\Demos\Demo3 - Stress Test\Scripts\CameraController.cs" />
-    <Compile Include="Assets\Indicators\Demos\Demo3 - Stress Test\Scripts\FPSCounter.cs" />
-    <Compile Include="Assets\Indicators\Demos\Demo3 - Stress Test\Scripts\SpawnArea.cs" />
-    <Compile Include="Assets\Indicators\Scripts\Extras\IndicatorColorAssigner.cs" />
-    <Compile Include="Assets\Indicators\Scripts\Extras\IndicatorTargetCamera.cs" />
-    <Compile Include="Assets\Indicators\Scripts\IndicatorPanel.cs" />
-    <Compile Include="Assets\Indicators\Scripts\IndicatorTarget.cs" />
-    <Compile Include="Assets\Indicators\Scripts\IndicatorViewer.cs" />
+    <Compile Include="Assets\EZ Indicators\Demos\Demo1- 2D Fighter\Scripts\CharacterController2D.cs" />
+    <Compile Include="Assets\EZ Indicators\Demos\Demo1- 2D Fighter\Scripts\PlayerMotor2D.cs" />
+    <Compile Include="Assets\EZ Indicators\Demos\Demo1- 2D Fighter\Scripts\Respawn.cs" />
+    <Compile Include="Assets\EZ Indicators\Demos\Demo1- 2D Fighter\Scripts\SetPlayer.cs" />
+    <Compile Include="Assets\EZ Indicators\Demos\Demo2 - TopDown\Scripts\PlayerMotorTD.cs" />
+    <Compile Include="Assets\EZ Indicators\Demos\Demo3 - Stress Test\Scripts\CameraController.cs" />
+    <Compile Include="Assets\EZ Indicators\Demos\Demo3 - Stress Test\Scripts\FPSCounter.cs" />
+    <Compile Include="Assets\EZ Indicators\Demos\Demo3 - Stress Test\Scripts\SpawnArea.cs" />
+    <Compile Include="Assets\EZ Indicators\Demos\Demo4 - Runtime Demo\Scripts\Demo4Buttons.cs" />
+    <Compile Include="Assets\EZ Indicators\Scripts\IndicatorPanel.cs" />
+    <Compile Include="Assets\EZ Indicators\Scripts\IndicatorTarget.cs" />
+    <Compile Include="Assets\EZ Indicators\Scripts\IndicatorViewer.cs" />
+    <Compile Include="Assets\EZ Indicators\Scripts\Utilities\IndicatorColorAssigner.cs" />
+    <Compile Include="Assets\EZ Indicators\Scripts\Utilities\IndicatorDistanceTracker.cs" />
+    <Compile Include="Assets\EZ Indicators\Scripts\Utilities\IndicatorTargetCamera.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
