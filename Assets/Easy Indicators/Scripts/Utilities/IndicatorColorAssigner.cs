@@ -55,6 +55,8 @@ public class IndicatorColorAssigner : MonoBehaviour
     //  Using ienumerator because the indicator panel may not have been created yet thus we need to keep checking. Will stop when color is finally changed.
     IEnumerator CoChangeColor(Color newColor)
     {
+        yield return new WaitForSeconds(0.15f);
+
         //  Change color of all the indicator panel items
         IndicatorPanel IPanel = GetComponent<IndicatorTarget>().IndicatorPanel;
 

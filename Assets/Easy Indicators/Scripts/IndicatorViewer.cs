@@ -19,6 +19,10 @@ public class IndicatorViewer : MonoBehaviour
     [Header("Settings")]
     [Tooltip("The sorting layer for all the indicators. Lower value = behind UI. Higher value = front of UI")]
     public int CanvasSortingOrder = -100;
+    [Tooltip("Should indicators track target when it is OnScreen?")]
+    public bool trackOnScreen = true;
+    [Tooltip("Should indicators track target when it is OffScreen?")]
+    public bool trackOffScreen = true;
     [Tooltip("How many seconds before indicators update their tracking. Higher = better performance, but more stuttering")] [Range(0, 1)] 
     public float UpdateInterval = 0.015f;
     [Tooltip("The farthest distance indicators will reach from the screen center to the screen edges. Align slider with TargetEdgeDistance for seamless transition.")] [Range(0, 1)]
@@ -27,8 +31,6 @@ public class IndicatorViewer : MonoBehaviour
     public float TargetEdgeDistance = 0.95f;
 
     [Space(10)]
-    [Tooltip("Should indicators track target when it is visable to the camera?")]
-    public bool ShowOnVisable = true;
     [Tooltip("Should target indicator be disabled when target is too far from the viewer? Enabled = better performance")]
     public bool DisableOnDistance = true;
     [Tooltip("The max distance of the target from the viewer for the target's indicator to disable.")]
@@ -56,7 +58,6 @@ public class IndicatorViewer : MonoBehaviour
 
     //  Private Variables
     private GameObject indicatorCanvas;
-    private static bool isTracking = true;
     //[Tooltip("List containing all the targets currently being activly tracked. (Excludes inactive objects)")]
     public static List<IndicatorTarget> IndicatorTargets = new List<IndicatorTarget>();
 
@@ -91,7 +92,7 @@ public class IndicatorViewer : MonoBehaviour
     {
         while(true)
         {
-            if (isTracking)
+            if (trackOnScreen || trackOffScreen)
             {
                 //Debug.Log("Tracking: " + IndicatorTargets.Count);
 
@@ -107,9 +108,30 @@ public class IndicatorViewer : MonoBehaviour
         }
     }
 
-    #region Public static methods
+    #region Create the indicator canvas
+    //  Create a default canvas for the indicator panels and set parameters.
+    private void CreateIndicatorCanvas()
+    {
+        //  Create gameobject that holds canvas
+        indicatorCanvas = new GameObject("Indicator_Canvas");
+        indicatorCanvas.layer = 1 << 4;
+
+        //  Create Canvas
+        Canvas canvas = indicatorCanvas.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = CanvasSortingOrder;
+
+        //  Create default components for canvas
+        CanvasScaler cs = indicatorCanvas.AddComponent<CanvasScaler>();
+        cs.scaleFactor = 1;
+        cs.dynamicPixelsPerUnit = 10;
+        indicatorCanvas.AddComponent<GraphicRaycaster>();
+    }
+    #endregion
+
+    #region public set/get methods
     //  Untracks target; removes target from tracking list
-    public static void UntrackTarget(GameObject target, bool removeIndicator)
+    public static void UntrackTarget(GameObject target, bool destoryIndicator)
     {
         IndicatorTarget ITarget = target.GetComponent<IndicatorTarget>();
         for (int i = 0; i < IndicatorTargets.Count; i++)
@@ -117,7 +139,7 @@ public class IndicatorViewer : MonoBehaviour
             {
                 IndicatorTargets.Remove(ITarget);
                 //  Should we also remove the targets indicator including the script as well?
-                if (removeIndicator)
+                if (destoryIndicator)
                     ITarget.DestroyIndicator();
             }
     }
@@ -146,40 +168,19 @@ public class IndicatorViewer : MonoBehaviour
         return null;
     }
 
-    public static void StopTracking()
-    {   isTracking = false; }
-    public static void StartTracking()
-    {   isTracking = true;  }
-    public static bool IsTracking
-    { get { return isTracking; } }
-    #endregion
-
-#region Create the indicator canvas
-
-//  Create a default canvas for the indicator panels and set parameters.
-private void CreateIndicatorCanvas()
+    public void SetTracking(bool TrackOnScreen, bool TrackOffScreen)
     {
-        //  Create gameobject that holds canvas
-        indicatorCanvas = new GameObject("Indicator_Canvas");
-        indicatorCanvas.layer = 1 << 4;
-
-        //  Create Canvas
-        Canvas canvas = indicatorCanvas.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = CanvasSortingOrder;
-
-        //  Create default components for canvas
-        CanvasScaler cs = indicatorCanvas.AddComponent<CanvasScaler>();
-        cs.scaleFactor = 1;
-        cs.dynamicPixelsPerUnit = 10;
-        indicatorCanvas.AddComponent<GraphicRaycaster>();
+        trackOnScreen = TrackOnScreen;
+        trackOffScreen = TrackOffScreen;
     }
 
-    #endregion
+    public bool IsTrackingOnScreen
+    { get { return trackOnScreen; } }
 
-    //  Getters/Setters
+    public bool IsTrackingOffScreen
+    { get { return trackOffScreen; } }
+
     public GameObject IndicatorCanvas
-    {
-        get { return indicatorCanvas; }
-    }
+    {   get { return indicatorCanvas; } }
+    #endregion
 }

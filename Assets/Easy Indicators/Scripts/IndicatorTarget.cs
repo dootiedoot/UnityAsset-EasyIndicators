@@ -14,12 +14,14 @@ public class IndicatorTarget : MonoBehaviour
     [Header("Settings")]
     [Tooltip("Offset position of the on-screen indicator from the target. If left to 0, the indicator will be positioned at the center of the target.")]
     public Vector2 OnScreenIndicatorOffset;
-    [Tooltip("Should indicators track target when it is visable to the camera? (Overrides viewer default) If false, the viewer default will be used instead")]
-    public bool ShowOnVisable;
+    [Tooltip("Should indicators track target when it is On-Screen regardless of viewer default?")]
+    public bool forceOnScreen = false;
+    [Tooltip("Should indicators track target when it is Off-Screen regardless of viewer default?")]
+    public bool forceOffScreen = false;
 
     //  Variables
     private IndicatorViewer _viewer;
-    private IndicatorPanel indicatorPanel;
+    private IndicatorPanel IPanel;
     private bool isVisable;
     private bool isOnScreenEnabled;
     private bool isOffScreenEnabled;
@@ -42,12 +44,12 @@ public class IndicatorTarget : MonoBehaviour
     void OnEnable()
     {
         //  Add the target the the viewer's target list so viewer can track this target.
-        if (!IndicatorViewer.IndicatorTargets.Contains(this) && indicatorPanel != null)
+        if (!IndicatorViewer.IndicatorTargets.Contains(this) && IPanel != null)
             IndicatorViewer.IndicatorTargets.Add(this);
 
         //  Disable the panel so viewer does not see it ingame
-        if (indicatorPanel != null)
-            indicatorPanel.gameObject.SetActive(true);
+        if (IPanel != null)
+            IPanel.gameObject.SetActive(true);
     }
     void OnDisable()
     {
@@ -55,8 +57,8 @@ public class IndicatorTarget : MonoBehaviour
         IndicatorViewer.IndicatorTargets.Remove(this);
 
         //  Enable the panel so viewer can see it ingame
-        if (indicatorPanel != null)
-            indicatorPanel.gameObject.SetActive(false);
+        if (IPanel != null)
+            IPanel.gameObject.SetActive(false);
     }
 
     #region Initial set-up of indicator
@@ -74,14 +76,14 @@ public class IndicatorTarget : MonoBehaviour
             GameObject panel = Instantiate(CustomIndicatorPanel, Vector2.zero, Quaternion.identity) as GameObject;
             panel.name = name + " indicator";
             panel.transform.SetParent(_viewer.IndicatorCanvas.transform);
-            indicatorPanel = panel.GetComponent<IndicatorPanel>();
+            IPanel = panel.GetComponent<IndicatorPanel>();
 
             //  Set the offset position of the onscreen image.
-            if (indicatorPanel.OnScreen != null)
-                indicatorPanel.OnScreen.transform.position += new Vector3(OnScreenIndicatorOffset.x, OnScreenIndicatorOffset.y, 0);
+            if (IPanel.OnScreen != null)
+                IPanel.OnScreen.transform.position += new Vector3(OnScreenIndicatorOffset.x, OnScreenIndicatorOffset.y, 0);
 
             //  Assign the initial z position. (used for scaling the indicator)
-            previousZposition = indicatorPanel.transform.position.z;
+            previousZposition = IPanel.transform.position.z;
 
             //  Add this target to the list of targets if not already
             if (!IndicatorViewer.IndicatorTargets.Contains(this))
@@ -90,16 +92,16 @@ public class IndicatorTarget : MonoBehaviour
             //  initial indicator toggle
             if(OnScreen(_viewer.ViewerCamera.WorldToScreenPoint(transform.position), _viewer.ViewerCamera))
             {
-                if (indicatorPanel.OnScreen != null)
+                if (IPanel.OnScreen != null)
                     ToggleOnScreen(true);
-                if (indicatorPanel.OffScreen != null)
+                if (IPanel.OffScreen != null)
                     ToggleOffScreen(false);
             }
             else
             {
-                if (indicatorPanel.OnScreen != null)
+                if (IPanel.OnScreen != null)
                     ToggleOnScreen(false);
-                if (indicatorPanel.OffScreen != null)
+                if (IPanel.OffScreen != null)
                     ToggleOffScreen(true);
             }
 
@@ -115,18 +117,12 @@ public class IndicatorTarget : MonoBehaviour
     void Update()
     {
         //  if the viewer is currently tracking...
-        if (IndicatorViewer.IsTracking)
-        {
-            //  Display the indicator panel
-            if (indicatorPanel != null)
-                indicatorPanel.gameObject.SetActive(true);
-        }
+        if (IPanel != null && (_viewer.IsTrackingOnScreen || _viewer.IsTrackingOffScreen))
+            IPanel.gameObject.SetActive(true);
+
         //  else if the viewer is not tracking...
-        else if (indicatorPanel != null)
-        {
-            //  Hide the indicator panel
-            indicatorPanel.gameObject.SetActive(false);
-        }
+        else if (IPanel != null)
+            IPanel.gameObject.SetActive(false);
     }
 
     //  Performs the calculations to update the position & rotation of the indicator panel of this target.
@@ -139,16 +135,17 @@ public class IndicatorTarget : MonoBehaviour
         //  if the target is visable on screen...
         if (OnScreen(targetPosOnScreen, _viewer.ViewerCamera))
         {
-            //  Set target to visable.
-            isVisable = true;
 
             //  Disable the off-screen indicator if it exist
-            if (indicatorPanel.OffScreen != null && isOffScreenEnabled)
+            if (IPanel.OffScreen != null && isOffScreenEnabled)
                 ToggleOffScreen(false);
 
-            //  if the viewer allows indicators to show when the target is visable
-            if ((ShowOnVisable || _viewer.ShowOnVisable) && indicatorPanel.OnScreen != null)
+            //  if the viewer allows indicators to show when the target is on-screen
+            if ((forceOnScreen || _viewer.IsTrackingOnScreen) && IPanel.OnScreen != null)
             {
+                //  Set target to visable.
+                isVisable = true;
+
                 //  Get distance from this target and viewer
                 distanceFromViewer = GetDistance(transform.position, _viewer.ViewerObject.transform.position);
 
@@ -160,15 +157,15 @@ public class IndicatorTarget : MonoBehaviour
                         ToggleOnScreen(true);
 
                     //  set the UI panel position to the target's position
-                    indicatorPanel.transform.position = targetPosOnScreen;
+                    IPanel.transform.position = targetPosOnScreen;
 
                     //  If OnScreen exist && scaling is enabled && if the target's indicator axis towards the camera has changed...
-                    if (_viewer.AutoScale && indicatorPanel.transform.position.z != previousZposition)
+                    if (_viewer.AutoScale && IPanel.transform.position.z != previousZposition)
                     {
                         UpdateScale(distanceFromViewer);
 
                         //  Record the new axis position of the indicator panel
-                        previousZposition = indicatorPanel.transform.position.z;
+                        previousZposition = IPanel.transform.position.z;
                     }
                 }
                 else if(isOnScreenEnabled)
@@ -176,7 +173,7 @@ public class IndicatorTarget : MonoBehaviour
                     ToggleOnScreen(false);
                 }
             }
-            else if (indicatorPanel.OnScreen != null && isOnScreenEnabled)
+            else if (IPanel.OnScreen != null && isOnScreenEnabled)
             {
                 ToggleOnScreen(false);
             }
@@ -188,10 +185,10 @@ public class IndicatorTarget : MonoBehaviour
             isVisable = false;
 
             //  Disables the on screen indicator if it exists
-            if (indicatorPanel.OnScreen != null && isOnScreenEnabled)
+            if (IPanel.OnScreen != null && isOnScreenEnabled)
                 ToggleOnScreen(false);
 
-            if (indicatorPanel.OffScreen != null)
+            if ((forceOffScreen || _viewer.IsTrackingOffScreen) && IPanel.OffScreen != null)
             {
                 //  Get distance from this target and viewer
                 distanceFromViewer = GetDistance(transform.position, _viewer.ViewerObject.transform.position);
@@ -215,7 +212,7 @@ public class IndicatorTarget : MonoBehaviour
                     ToggleOffScreen(false);
                 }
             }
-            else if(indicatorPanel.OffScreen != null && isOffScreenEnabled)
+            else if(IPanel.OffScreen != null && isOffScreenEnabled)
             {
                 ToggleOffScreen(false);
             }     
@@ -251,14 +248,14 @@ public class IndicatorTarget : MonoBehaviour
         float newScaleSize = _viewer.ScalingFactor / distance;
 
         //  Set the scale based on the scaling factor
-        indicatorPanel.transform.localScale = new Vector2(newScaleSize, newScaleSize);
+        IPanel.transform.localScale = new Vector2(newScaleSize, newScaleSize);
 
         //  If the indicator scale is lower then or equal to the minimum size... Then, set the scale to the minimum size.
         //  Else if the indicator scale is greater or equal to the maximum size... Then, set the scale to the maximum size.
-        if (indicatorPanel.transform.localScale.x <= _viewer.MinScaleSize || indicatorPanel.transform.localScale.y <= _viewer.MinScaleSize)
-            indicatorPanel.transform.localScale = new Vector2(_viewer.MinScaleSize, _viewer.MinScaleSize);
-        else if (indicatorPanel.transform.localScale.x >= _viewer.MaxScaleSize || indicatorPanel.transform.localScale.y >= _viewer.MaxScaleSize)
-            indicatorPanel.transform.localScale = new Vector2(_viewer.MaxScaleSize, _viewer.MaxScaleSize);
+        if (IPanel.transform.localScale.x <= _viewer.MinScaleSize || IPanel.transform.localScale.y <= _viewer.MinScaleSize)
+            IPanel.transform.localScale = new Vector2(_viewer.MinScaleSize, _viewer.MinScaleSize);
+        else if (IPanel.transform.localScale.x >= _viewer.MaxScaleSize || IPanel.transform.localScale.y >= _viewer.MaxScaleSize)
+            IPanel.transform.localScale = new Vector2(_viewer.MaxScaleSize, _viewer.MaxScaleSize);
 
         //Debug.Log("Scaling...");
     }
@@ -308,13 +305,13 @@ public class IndicatorTarget : MonoBehaviour
         newIndicatorPos += screenCenter;
 
         //  Assign new position
-        indicatorPanel.transform.position = new Vector3(newIndicatorPos.x, newIndicatorPos.y, targetPosOnScreen.z);
+        IPanel.transform.position = new Vector3(newIndicatorPos.x, newIndicatorPos.y, targetPosOnScreen.z);
 
         //  Assign new rotation
         if (_viewer.RotateTowardsTargetOffScreen)
-            indicatorPanel.OffScreen.transform.rotation = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg);
+            IPanel.OffScreen.transform.rotation = Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg);
         else
-            indicatorPanel.OffScreen.transform.rotation = Quaternion.Euler(0, 0, 0);
+            IPanel.OffScreen.transform.rotation = Quaternion.Euler(0, 0, 0);
     }
 
     #endregion
@@ -342,24 +339,24 @@ public class IndicatorTarget : MonoBehaviour
         if (enable)
         {
             isOnScreenEnabled = true;
-            indicatorPanel.OnScreen.SetActive(true);
+            IPanel.OnScreen.SetActive(true);
 
             switch (_viewer.OnScreenEnableTransition)
             {
                 case IndicatorViewer.Transitions.Slide:
-                    indicatorPanel.SlideTransition(indicatorPanel.OnScreen.transform, 2 * OnScreenIndicatorOffset, OnScreenIndicatorOffset, _viewer.TransitionDuration, false);
+                    IPanel.SlideTransition(IPanel.OnScreen.transform, 2 * OnScreenIndicatorOffset, OnScreenIndicatorOffset, _viewer.TransitionDuration, false);
                     break;
                 case IndicatorViewer.Transitions.Fade:
-                    indicatorPanel.FadeTransition(indicatorPanel.OnScreen.transform, 1, _viewer.TransitionDuration, false);
+                    IPanel.FadeTransition(IPanel.OnScreen.transform, 1, _viewer.TransitionDuration, false);
                     break;
                 case IndicatorViewer.Transitions.Rotate:
-                    indicatorPanel.RotateTransition(indicatorPanel.OnScreen.transform, Quaternion.Euler(0, 0, 90), Quaternion.Euler(0, 0, 0), _viewer.TransitionDuration, false);
+                    IPanel.RotateTransition(IPanel.OnScreen.transform, Quaternion.Euler(0, 0, 90), Quaternion.Euler(0, 0, 0), _viewer.TransitionDuration, false);
                     break;
                 case IndicatorViewer.Transitions.RotateReverse:
-                    indicatorPanel.RotateTransition(indicatorPanel.OnScreen.transform, Quaternion.Euler(0, 0, -90), Quaternion.Euler(0, 0, 0), _viewer.TransitionDuration, false);
+                    IPanel.RotateTransition(IPanel.OnScreen.transform, Quaternion.Euler(0, 0, -90), Quaternion.Euler(0, 0, 0), _viewer.TransitionDuration, false);
                     break;
                 case IndicatorViewer.Transitions.Scale:
-                    indicatorPanel.ScaleTransition(indicatorPanel.OnScreen.transform, Vector3.zero, Vector3.one, _viewer.TransitionDuration, false);
+                    IPanel.ScaleTransition(IPanel.OnScreen.transform, Vector3.zero, Vector3.one, _viewer.TransitionDuration, false);
                     break;
             }
         }
@@ -370,22 +367,22 @@ public class IndicatorTarget : MonoBehaviour
             switch (_viewer.OnScreenDisableTransition)
             {
                 case IndicatorViewer.Transitions.None:
-                    indicatorPanel.OnScreen.SetActive(false);
+                    IPanel.OnScreen.SetActive(false);
                     break;
                 case IndicatorViewer.Transitions.Slide:
-                    indicatorPanel.SlideTransition(indicatorPanel.OnScreen.transform, OnScreenIndicatorOffset, 2 * OnScreenIndicatorOffset, _viewer.TransitionDuration, true);
+                    IPanel.SlideTransition(IPanel.OnScreen.transform, OnScreenIndicatorOffset, 2 * OnScreenIndicatorOffset, _viewer.TransitionDuration, true);
                     break;
                 case IndicatorViewer.Transitions.Fade:
-                    indicatorPanel.FadeTransition(indicatorPanel.OnScreen.transform, 0, _viewer.TransitionDuration, true);
+                    IPanel.FadeTransition(IPanel.OnScreen.transform, 0, _viewer.TransitionDuration, true);
                     break;
                 case IndicatorViewer.Transitions.Rotate:
-                    indicatorPanel.RotateTransition(indicatorPanel.OnScreen.transform, Quaternion.Euler(0, 0, 0), Quaternion.Euler(0, 0, -90), _viewer.TransitionDuration, true);
+                    IPanel.RotateTransition(IPanel.OnScreen.transform, Quaternion.Euler(0, 0, 0), Quaternion.Euler(0, 0, -90), _viewer.TransitionDuration, true);
                     break;
                 case IndicatorViewer.Transitions.RotateReverse:
-                    indicatorPanel.RotateTransition(indicatorPanel.OnScreen.transform, Quaternion.Euler(0, 0, 0), Quaternion.Euler(0, 0, 90), _viewer.TransitionDuration, true);
+                    IPanel.RotateTransition(IPanel.OnScreen.transform, Quaternion.Euler(0, 0, 0), Quaternion.Euler(0, 0, 90), _viewer.TransitionDuration, true);
                     break;
                 case IndicatorViewer.Transitions.Scale:
-                    indicatorPanel.ScaleTransition(indicatorPanel.OnScreen.transform, Vector3.one, Vector3.zero, _viewer.TransitionDuration, true);
+                    IPanel.ScaleTransition(IPanel.OnScreen.transform, Vector3.one, Vector3.zero, _viewer.TransitionDuration, true);
                     break;
             }
         }
@@ -402,18 +399,18 @@ public class IndicatorTarget : MonoBehaviour
         if (enable)
         {
             isOffScreenEnabled = true;
-            indicatorPanel.OffScreen.SetActive(true);
+            IPanel.OffScreen.SetActive(true);
             
             switch (_viewer.OffScreenEnableTransition)
             {
                 case IndicatorViewer.Transitions.Slide:
-                    indicatorPanel.SlideTransition(indicatorPanel.OffScreen.transform, new Vector3(0, 50, 0), Vector3.zero, _viewer.TransitionDuration, false);
+                    IPanel.SlideTransition(IPanel.OffScreen.transform, new Vector3(0, 50, 0), Vector3.zero, _viewer.TransitionDuration, false);
                     break;
                 case IndicatorViewer.Transitions.Fade:
-                    indicatorPanel.FadeTransition(indicatorPanel.OffScreen.transform, 1, _viewer.TransitionDuration, false);
+                    IPanel.FadeTransition(IPanel.OffScreen.transform, 1, _viewer.TransitionDuration, false);
                     break;
                 case IndicatorViewer.Transitions.Scale:
-                    indicatorPanel.ScaleTransition(indicatorPanel.OffScreen.transform, Vector3.zero, Vector3.one, _viewer.TransitionDuration, false);
+                    IPanel.ScaleTransition(IPanel.OffScreen.transform, Vector3.zero, Vector3.one, _viewer.TransitionDuration, false);
                     break;
             }
         }
@@ -424,16 +421,16 @@ public class IndicatorTarget : MonoBehaviour
             switch (_viewer.OffScreenDisableTransition)
             {
                 case IndicatorViewer.Transitions.None:
-                    indicatorPanel.OffScreen.SetActive(false);
+                    IPanel.OffScreen.SetActive(false);
                     break;
                 case IndicatorViewer.Transitions.Slide:
-                    indicatorPanel.SlideTransition(indicatorPanel.OffScreen.transform, Vector3.zero, new Vector3(0, 50, 0), _viewer.TransitionDuration, true);
+                    IPanel.SlideTransition(IPanel.OffScreen.transform, Vector3.zero, new Vector3(0, 50, 0), _viewer.TransitionDuration, true);
                     break;
                 case IndicatorViewer.Transitions.Fade:
-                    indicatorPanel.FadeTransition(indicatorPanel.OffScreen.transform, 0, _viewer.TransitionDuration, true);
+                    IPanel.FadeTransition(IPanel.OffScreen.transform, 0, _viewer.TransitionDuration, true);
                     break;
                 case IndicatorViewer.Transitions.Scale:
-                    indicatorPanel.ScaleTransition(indicatorPanel.OffScreen.transform, Vector3.one, Vector3.zero, _viewer.TransitionDuration, true);
+                    IPanel.ScaleTransition(IPanel.OffScreen.transform, Vector3.one, Vector3.zero, _viewer.TransitionDuration, true);
                     break;
             }
         }
@@ -450,8 +447,8 @@ public class IndicatorTarget : MonoBehaviour
 
     public void DestroyIndicator()
     {
-        if (indicatorPanel != null)
-            Destroy(indicatorPanel.gameObject);
+        if (IPanel != null)
+            Destroy(IPanel.gameObject);
         if (GetComponent<IndicatorTargetCamera>() != null)
             Destroy(GetComponent<IndicatorTargetCamera>());
         Destroy(this);
@@ -460,7 +457,7 @@ public class IndicatorTarget : MonoBehaviour
     //  Getters/Setters
     public IndicatorPanel IndicatorPanel
     {
-        get { return indicatorPanel; }
+        get { return IPanel; }
     }
     public bool IsVisable
     {
@@ -469,5 +466,15 @@ public class IndicatorTarget : MonoBehaviour
     public float DistanceFromViewer
     {
         get { return distanceFromViewer; }
+    }
+    public bool ForceOnScreen
+    {
+        get { return forceOnScreen; }
+        set { forceOnScreen = value; }
+    }
+    public bool ForceOffScreen
+    {
+        get { return forceOffScreen; }
+        set { forceOffScreen = value; }
     }
 }

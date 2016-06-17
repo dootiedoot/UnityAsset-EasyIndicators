@@ -20,14 +20,14 @@ public class IndicatorDistanceTracker : MonoBehaviour
     public Vector2 OnScreenPosOffset = new Vector2(0, 65);
     [Tooltip("Offset position for the off-screen indicator.")]
     public Vector2 OffScreenPosOffset = new Vector2(0, -50);
-    [Tooltip("The font size of distancetext.")]
-    public int FontSize = 14;
     [Tooltip("The suffix text that displays after the distance text. Represents distance units such as Meters.")]
     public string distanceSuffix = "m";
     [Tooltip("The farthest decimal point the distance will display.")]
     public Decial DecimalPoint;
     public enum Decial
     { None, Tenths, Hundredths, Thousandths, TenThousandths }
+    [Tooltip("The font size of distancetext.")]
+    public int FontSize = 24;
 
     //  Variables
     private IndicatorTarget ITarget;
@@ -47,11 +47,23 @@ public class IndicatorDistanceTracker : MonoBehaviour
     {
         StartCoroutine(CoCreateDistanceTracker());
 	}
-	
-	// Update is called once per frame
-	void LateUpdate ()
+
+    //  Set active/inactive for distance indicator when script is enabled/disabled
+    void OnEnable()
     {
-        if ((ShowOnScreen || ShowOffScreen) && IPanel != null)
+        if (distanceIndicator != null)
+            distanceIndicator.SetActive(true);
+    }
+    void OnDisable()
+    {
+        if (distanceIndicator != null)
+            distanceIndicator.SetActive(false);
+    }
+
+    // Update is called once per frame
+    void LateUpdate ()
+    {
+        if ((ShowOnScreen || ShowOffScreen) && IPanel != null && distanceIndicator != null)
         {
             //  Runs once during on-screen & off-screen transition
             if (ITarget.IsVisable && IPanel.OnScreen != null && !isOnScreen)
@@ -126,7 +138,7 @@ public class IndicatorDistanceTracker : MonoBehaviour
         distanceIndicator = new GameObject("DistanceTrackerIndicator");
         distanceIndicator.layer = 1 << 4;
         distanceIndicator.transform.SetParent(ITarget.IndicatorPanel.transform);
-        distanceIndicator.transform.localPosition = Vector3.zero;
+        distanceIndicator.transform.localPosition = OnScreenPosOffset;
         distanceIndicator.transform.localScale = Vector3.one;
 
         //  text
@@ -141,6 +153,10 @@ public class IndicatorDistanceTracker : MonoBehaviour
             distanceText.font = CustomFont;
         }
 
-        distanceIndicator.SetActive(false);
+        //  Add ui effects
+        distanceIndicator.AddComponent<Shadow>();
+        //distanceIndicator.AddComponent<Outline>();
+
+        //distanceIndicator.SetActive(false);
     }
 }

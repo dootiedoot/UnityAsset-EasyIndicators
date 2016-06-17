@@ -41,6 +41,7 @@ public class IndicatorTargetCamera : MonoBehaviour
         StartCoroutine(CoCreateTargetCamera());
     }
 
+    //  Set active/inactive for target camera & the target camera indicator when script is enabled/disabled
     void OnEnable()
     {
         if (targetCameraIndicator != null)
@@ -48,7 +49,6 @@ public class IndicatorTargetCamera : MonoBehaviour
         if (targetCamGO != null)
             targetCamGO.SetActive(true);
     }
-
     void OnDisable()
     {
         if (targetCameraIndicator != null)
