@@ -8,9 +8,14 @@ public class IndicatorPanel : MonoBehaviour
     [Header("User-Assigned Variables")]
     public GameObject OffScreen;
     public GameObject OnScreen;
-    //public GameObject TargetCam;
 
-    //  TRANSITION ANIMATIONS
+    void Start()
+    {
+        if (OffScreen == null && OnScreen == null)
+            Debug.Log("IndicatorPanel's off-screen & on-screen gameobject are not assigned!");
+    }
+
+    //  public calls for transition animations
     public void SlideTransition(Transform target, Vector3 startPos, Vector3 endPos, float duration, bool DisableOnFinish)
     {
         StartCoroutine(CoSlideTransition(target, startPos, endPos, duration, DisableOnFinish));
@@ -28,6 +33,7 @@ public class IndicatorPanel : MonoBehaviour
         StartCoroutine(CoRotateTransition(target, startRotation, endRotation, duration, DisableOnFinish));
     }
 
+    //  Coroutines of transition animations
     #region Coroutine for sliding transition
     //  Coroutine for animating the position of a target's indicator from a starting position to an ending position with a duration.
     IEnumerator CoSlideTransition(Transform target, Vector3 startPos, Vector3 endPos, float duration, bool DisableOnFinish)

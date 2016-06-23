@@ -19,10 +19,6 @@ public class IndicatorViewer : MonoBehaviour
     [Header("Settings")]
     [Tooltip("The sorting layer for all the indicators. Lower value = behind UI. Higher value = front of UI")]
     public int CanvasSortingOrder = -100;
-    [Tooltip("Should indicators track target when it is OnScreen?")]
-    public bool trackOnScreen = true;
-    [Tooltip("Should indicators track target when it is OffScreen?")]
-    public bool trackOffScreen = true;
     [Tooltip("How many seconds before indicators update their tracking. Higher = better performance, but more stuttering")] [Range(0, 1)] 
     public float UpdateInterval = 0.015f;
     [Tooltip("The farthest distance indicators will reach from the screen center to the screen edges. Align slider with TargetEdgeDistance for seamless transition.")] [Range(0, 1)]
@@ -38,7 +34,7 @@ public class IndicatorViewer : MonoBehaviour
 
     [Space(10)]
     [Tooltip("Does the off-screen indicator rotate towards the target? Set True for arrow-type indicators. Set False for portrait-style indicators.")]
-    public bool RotateTowardsTargetOffScreen = true;
+    public bool OffScreenRotates = true;
     [Tooltip("Should indicators automatically scale based on the distance from the viewer?")]
     public bool AutoScale = true;
     public float ScalingFactor = 10;
@@ -58,8 +54,10 @@ public class IndicatorViewer : MonoBehaviour
 
     //  Private Variables
     private GameObject indicatorCanvas;
-    //[Tooltip("List containing all the targets currently being activly tracked. (Excludes inactive objects)")]
-    public static List<IndicatorTarget> IndicatorTargets = new List<IndicatorTarget>();
+    private static bool isTracking = true;
+    private static bool trackOnScreen = true;
+    private static bool trackOffScreen = true;
+    public static List<IndicatorTarget> Targets = new List<IndicatorTarget>();
 
     void Awake()
     {
@@ -92,15 +90,15 @@ public class IndicatorViewer : MonoBehaviour
     {
         while(true)
         {
-            if (trackOnScreen || trackOffScreen)
+            if (isTracking)
             {
                 //Debug.Log("Tracking: " + IndicatorTargets.Count);
 
                 //  Loop through each indicator in the target list...
-                for (int i = 0; i < IndicatorTargets.Count; i++)
+                for (int i = 0; i < Targets.Count; i++)
                 {
                     //  Update the target's indicator
-                    IndicatorTargets[i].UpdateIndicator();
+                    Targets[i].UpdateIndicator();
                 }
             }
 
@@ -130,19 +128,6 @@ public class IndicatorViewer : MonoBehaviour
     #endregion
 
     #region public set/get methods
-    //  Untracks target; removes target from tracking list
-    public static void UntrackTarget(GameObject target, bool destoryIndicator)
-    {
-        IndicatorTarget ITarget = target.GetComponent<IndicatorTarget>();
-        for (int i = 0; i < IndicatorTargets.Count; i++)
-            if (ITarget = IndicatorTargets[i])
-            {
-                IndicatorTargets.Remove(ITarget);
-                //  Should we also remove the targets indicator including the script as well?
-                if (destoryIndicator)
-                    ITarget.DestroyIndicator();
-            }
-    }
     //  Tracks target; add a IndicatorTarget component to the target if it doesn't already exist and add to tracking list.
     public static void TrackTarget(GameObject target)
     {
@@ -151,10 +136,19 @@ public class IndicatorViewer : MonoBehaviour
         if (ITarget == null)
             ITarget = target.AddComponent<IndicatorTarget>();
         //  Else if the target already has an indicator, check if it just needs to be added to the tracking list if not already
-        else if (!IndicatorTargets.Contains(ITarget))
-            IndicatorTargets.Add(ITarget);
+        else if (!Targets.Contains(ITarget))
+            Targets.Add(ITarget);
         else
             Debug.Log("Target is already being tracked.");
+        ITarget.enabled = true;
+    }
+
+    //  Untracks target; removes target from tracking list
+    public static void UntrackTarget(GameObject target)
+    {
+        IndicatorTarget ITarget = target.GetComponent<IndicatorTarget>();
+        ITarget.enabled = false;
+        Targets.Remove(ITarget);
     }
 
     //  Returns the IndicatorTarget component of the target
@@ -162,23 +156,38 @@ public class IndicatorViewer : MonoBehaviour
     {
         IndicatorTarget ITarget = target.GetComponent<IndicatorTarget>();
         if (ITarget != null)
-            for (int i = 0; i < IndicatorTargets.Count; i++)
-                if (ITarget = IndicatorTargets[i])
+            for (int i = 0; i < Targets.Count; i++)
+                if (ITarget = Targets[i])
                     return ITarget;
         return null;
     }
 
-    public void SetTracking(bool TrackOnScreen, bool TrackOffScreen)
+    public static void SetTracking(bool trackOnScreen, bool trackOffScreen)
     {
-        trackOnScreen = TrackOnScreen;
-        trackOffScreen = TrackOffScreen;
+        TrackOnScreen = trackOnScreen;
+        TrackOffScreen = trackOffScreen;
     }
 
-    public bool IsTrackingOnScreen
-    { get { return trackOnScreen; } }
+    public static void StartTracking()
+    {   isTracking = true;    }
 
-    public bool IsTrackingOffScreen
-    { get { return trackOffScreen; } }
+    public static void StopTracking()
+    {   isTracking = false;   }
+
+    public static bool IsTracking
+    {   get { return isTracking; } }
+
+    public static bool TrackOnScreen
+    {
+        get { return trackOnScreen; }
+        set { trackOnScreen = value; }
+    }
+
+    public static bool TrackOffScreen
+    {
+        get { return trackOffScreen; }
+        set { trackOffScreen = value; }
+    }
 
     public GameObject IndicatorCanvas
     {   get { return indicatorCanvas; } }

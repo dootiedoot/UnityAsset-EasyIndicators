@@ -5,7 +5,7 @@ public class Respawn : MonoBehaviour
 {
     public Transform RespawnNode;
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerEnter2D(Collider2D other)
     {
         other.transform.position = RespawnNode.position;
     }

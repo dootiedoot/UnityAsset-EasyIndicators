@@ -60,7 +60,7 @@ public class IndicatorDistanceTracker : MonoBehaviour
             distanceIndicator.SetActive(false);
     }
 
-    // Update is called once per frame
+    #region Update position & scale of the distance tracker
     void LateUpdate ()
     {
         if ((ShowOnScreen || ShowOffScreen) && IPanel != null && distanceIndicator != null)
@@ -117,6 +117,7 @@ public class IndicatorDistanceTracker : MonoBehaviour
             distanceIndicator.transform.rotation = Quaternion.identity;
         }    
 	}
+    #endregion
 
     //  Using ienumerator because the indicator panel may not have been created yet thus we need to keep checking till it exist.
     IEnumerator CoCreateDistanceTracker()
@@ -133,11 +134,21 @@ public class IndicatorDistanceTracker : MonoBehaviour
         CreateDistanceTracker();
     }
 
+    #region Create the distance indicator
     void CreateDistanceTracker()
     {
         distanceIndicator = new GameObject("DistanceTrackerIndicator");
         distanceIndicator.layer = 1 << 4;
-        distanceIndicator.transform.SetParent(ITarget.IndicatorPanel.transform);
+
+        //  Determine initial parent
+        if (ITarget.IsVisable && IPanel.OnScreen != null)
+            distanceIndicator.transform.SetParent(ITarget.IndicatorPanel.OnScreen.transform);
+        else if (!ITarget.IsVisable && IPanel.OffScreen != null)
+            distanceIndicator.transform.SetParent(ITarget.IndicatorPanel.OffScreen.transform);
+        else
+            distanceIndicator.transform.SetParent(ITarget.IndicatorPanel.transform);
+
+        //  Reset position & scale
         distanceIndicator.transform.localPosition = OnScreenPosOffset;
         distanceIndicator.transform.localScale = Vector3.one;
 
@@ -153,10 +164,12 @@ public class IndicatorDistanceTracker : MonoBehaviour
             distanceText.font = CustomFont;
         }
 
+
         //  Add ui effects
         distanceIndicator.AddComponent<Shadow>();
         //distanceIndicator.AddComponent<Outline>();
 
         //distanceIndicator.SetActive(false);
     }
+    #endregion
 }

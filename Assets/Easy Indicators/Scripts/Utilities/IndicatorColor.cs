@@ -5,7 +5,7 @@ using System.Collections;
 //  This script is used to assign a random color and it's indicator UI.
 //  Simply attach this to any target that has the 'IndicatorTarget' component on it.
 
-public class IndicatorColorAssigner : MonoBehaviour
+public class IndicatorColor : MonoBehaviour
 {
     //  Settings & options
     [Header("Settings")]
@@ -18,21 +18,20 @@ public class IndicatorColorAssigner : MonoBehaviour
     [Tooltip("Should this gameobject's children be set to the new color?")]
     public bool ChangeChildrenColor = false;
 
-
     // Use this for initialization
 	void Start ()
     {
-        ChangeColor(Color);
+        ChangeColor(Color, RandomColor, ChangeGameobjectColor, ChangeChildrenColor);
     }
 
-    public void ChangeColor(Color newColor)
+    public void ChangeColor(Color newColor, bool random, bool changeGO, bool changeChildren)
     {
         //  Get a new random color if enabled
-        if (RandomColor)
+        if (random)
             newColor = new Color(UnityEngine.Random.Range(0f, 1f), Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
 
         //  Change color of this gameobject.
-        if (ChangeGameobjectColor)
+        if (changeGO)
         {
             //  Gameobject
             if (GetComponent<Renderer>() != null)
@@ -40,7 +39,7 @@ public class IndicatorColorAssigner : MonoBehaviour
         }
 
         //  Change color of this gameobject's children
-        if (ChangeChildrenColor)
+        if (changeChildren)
         {
             Renderer[] renders = GetComponentsInChildren<Renderer>(true);
             for (int i = 0; i < renders.Length; i++)

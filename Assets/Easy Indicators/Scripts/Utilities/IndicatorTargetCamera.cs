@@ -57,45 +57,6 @@ public class IndicatorTargetCamera : MonoBehaviour
             targetCamGO.SetActive(false);
     }
 
-    #region Create the target camera and indicator camera
-    //  Creates the target camera, target's RenderTexture, and set-up UI stuff 
-    private void CreateTargetCamera()
-    {
-        //  1. Create empty gameobject to hold the camera
-        targetCamGO = new GameObject("Indicator_TargetCam");
-        targetCamGO.transform.SetParent(transform);
-        targetCamGO.transform.position = CameraPositionOffset + transform.position;
-        targetCamGO.transform.rotation = Quaternion.Euler(CameraRotationOffset.x, CameraRotationOffset.y, CameraRotationOffset.z);
-
-        //  2. Create the target camera raw image for the panel
-        targetCameraIndicator = new GameObject("TargetCameraImage");
-        targetCameraIndicator.layer = 1 << 4;
-        targetCameraIndicator.transform.SetParent(ITarget.IndicatorPanel.OffScreen.transform);
-        targetCameraIndicator.transform.localPosition = Vector3.zero;
-        targetCameraIndicator.transform.localScale = Vector3.one;
-        //_indicatorPanel.TargetCam = targetCameraIndicator;
-        RawImage rawImage = targetCameraIndicator.AddComponent<RawImage>();
-        rawImage.raycastTarget = false;
-
-        //  3. Create the render texture & set parameters
-        //renderTexture = new RenderTexture(TargetResolution, TargetResolution, 24, RenderTextureFormat.Default, RenderTextureReadWrite.Default);
-        //renderTexture.antiAliasing = 1;
-        RenderTexture renderTexture = RenderTexture.GetTemporary(TargetResolution, TargetResolution, 24, RenderTextureFormat.Default, RenderTextureReadWrite.Default, 1);
-        renderTexture.name = "TargetCamRenderTexture";
-        targetCameraIndicator.GetComponent<RawImage>().texture = renderTexture;
-
-        //  4. Create Camera and set up parameters
-        Camera targetCamera = targetCamGO.AddComponent<Camera>();
-        targetCamera.cullingMask = TargetLayer;
-        targetCamera.orthographic = true;
-        targetCamera.orthographicSize = CameraViewSize;
-        targetCamera.farClipPlane = CameraFarclipDistance;
-        targetCamera.clearFlags = CameraClearFlags.SolidColor;
-        targetCamera.backgroundColor = Color.clear;
-        targetCamera.targetTexture = renderTexture;
-    }
-    #endregion
-
     void LateUpdate()
     {
         if (IPanel != null && targetCamGO != null)
@@ -134,4 +95,43 @@ public class IndicatorTargetCamera : MonoBehaviour
         //  Now that the indicator panel exist, create the camera
         CreateTargetCamera();
     }
+
+    #region Create the target camera and indicator camera
+    //  Creates the target camera, target's RenderTexture, and set-up UI stuff 
+    private void CreateTargetCamera()
+    {
+        //  1. Create empty gameobject to hold the camera
+        targetCamGO = new GameObject("Indicator_TargetCam");
+        targetCamGO.transform.SetParent(transform);
+        targetCamGO.transform.position = CameraPositionOffset + transform.position;
+        targetCamGO.transform.rotation = Quaternion.Euler(CameraRotationOffset.x, CameraRotationOffset.y, CameraRotationOffset.z);
+
+        //  2. Create the target camera raw image for the panel
+        targetCameraIndicator = new GameObject("TargetCameraImage");
+        targetCameraIndicator.layer = 1 << 4;
+        targetCameraIndicator.transform.SetParent(ITarget.IndicatorPanel.OffScreen.transform);
+        targetCameraIndicator.transform.localPosition = Vector3.zero;
+        targetCameraIndicator.transform.localScale = Vector3.one;
+        //_indicatorPanel.TargetCam = targetCameraIndicator;
+        RawImage rawImage = targetCameraIndicator.AddComponent<RawImage>();
+        rawImage.raycastTarget = false;
+
+        //  3. Create the render texture & set parameters
+        //renderTexture = new RenderTexture(TargetResolution, TargetResolution, 24, RenderTextureFormat.Default, RenderTextureReadWrite.Default);
+        //renderTexture.antiAliasing = 1;
+        RenderTexture renderTexture = RenderTexture.GetTemporary(TargetResolution, TargetResolution, 24, RenderTextureFormat.Default, RenderTextureReadWrite.Default, 1);
+        renderTexture.name = "TargetCamRenderTexture";
+        targetCameraIndicator.GetComponent<RawImage>().texture = renderTexture;
+
+        //  4. Create Camera and set up parameters
+        Camera targetCamera = targetCamGO.AddComponent<Camera>();
+        targetCamera.cullingMask = TargetLayer;
+        targetCamera.orthographic = true;
+        targetCamera.orthographicSize = CameraViewSize;
+        targetCamera.farClipPlane = CameraFarclipDistance;
+        targetCamera.clearFlags = CameraClearFlags.SolidColor;
+        targetCamera.backgroundColor = Color.clear;
+        targetCamera.targetTexture = renderTexture;
+    }
+    #endregion
 }
