@@ -26,8 +26,8 @@ public class IndicatorTarget : MonoBehaviour
     private bool isOnScreenEnabled;             //  Check if onscreen is enabled
     private bool isOffScreenEnabled;            //  Check if offscreen is enabled.
     private float distanceFromViewer;           //  Distance from the viewer
-    private float previousZposition;            //  The last Z position value of the scaling axis. (used for scaling the indicator)
-    private Vector3 previousScale;              //  The last local scale value of the indicator. (used for scaling the indicator) 
+    //private float previousZposition;            //  The last Z position value of the scaling axis. (used for scaling the indicator)
+    //private Vector3 previousScale;              //  The last local scale value of the indicator. (used for scaling the indicator) 
 
     void Awake()
     {
@@ -84,8 +84,8 @@ public class IndicatorTarget : MonoBehaviour
                 IPanel.OnScreen.transform.position += new Vector3(onScreenOffset.x, onScreenOffset.y, 0);
 
             //  Assign the initial z position && scale value
-            previousZposition = IPanel.transform.position.z;
-            previousScale = IPanel.transform.localScale;
+            //previousZposition = IPanel.transform.position.z;
+            //previousScale = IPanel.transform.localScale;
 
             //  Add this target to the list of targets if not already
             if (!IndicatorViewer.Targets.Contains(this))
@@ -159,13 +159,13 @@ public class IndicatorTarget : MonoBehaviour
                     IPanel.transform.position = targetPosOnScreen;
 
                     //  If OnScreen exist && scaling is enabled && if the target's indicator axis towards the camera has changed...
-                    if (viewer.AutoScale && (IPanel.transform.position.z != previousZposition || IPanel.transform.localScale != previousScale))
+                    if (viewer.AutoScale) //(IPanel.transform.position.z != previousZposition || IPanel.transform.localScale != previousScale))
                     {
                         UpdateScale(distanceFromViewer);
 
                         //  Record the new axis position & local scale of the indicator panel
-                        previousZposition = IPanel.transform.position.z;
-                        previousScale = IPanel.transform.localScale;
+                        //previousZposition = IPanel.transform.position.z;
+                        //previousScale = IPanel.transform.localScale;
                     }
                 }
                 else if(isOnScreenEnabled)
