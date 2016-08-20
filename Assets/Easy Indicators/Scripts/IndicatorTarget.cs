@@ -157,6 +157,7 @@ public class IndicatorTarget : MonoBehaviour
 
                     //  set the UI panel position to the target's position
                     IPanel.transform.position = targetPosOnScreen;
+                    //IPanel.transform.position = transform.position + new Vector3(onScreenOffset.x, onScreenOffset.y, transform.position.z);
 
                     //  If OnScreen exist && scaling is enabled && if the target's indicator axis towards the camera has changed...
                     if (viewer.AutoScale) //(IPanel.transform.position.z != previousZposition || IPanel.transform.localScale != previousScale))

@@ -116,6 +116,7 @@ public class IndicatorViewer : MonoBehaviour
 
         //  Create Canvas
         Canvas canvas = indicatorCanvas.AddComponent<Canvas>();
+        //canvas.renderMode = RenderMode.WorldSpace;
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = CanvasSortingOrder;
 

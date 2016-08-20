@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Easy Indicators/Demos/Demo4 - Runtime Demo.unity
+- path: Assets/Easy Indicators/Demos/Demo1 - 2D Fighter.unity
   isLoaded: 1
   isActive: 1

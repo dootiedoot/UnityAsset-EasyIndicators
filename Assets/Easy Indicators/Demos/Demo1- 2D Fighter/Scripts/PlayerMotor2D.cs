@@ -65,7 +65,7 @@ public class PlayerMotor2D : MonoBehaviour
             if (transform.localScale.x > 0f)
                 transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
 
-            rotateTarget.eulerAngles = new Vector3(0, 90, 0);
+            rotateTarget.eulerAngles = new Vector3(0, -90, 0);
         }
         else
         {
