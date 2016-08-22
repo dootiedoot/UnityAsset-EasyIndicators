@@ -81,7 +81,7 @@ public class IndicatorTargetCamera : MonoBehaviour
         }
     }
 
-    //  Using ienumerator because the indicator panel may not have been created yet thus we need to keep checking till it exist.
+    #region IEnumerator that checks for a indicator panel that may not have been created yet thus we need to keep checking till it exist.
     IEnumerator CoCreateTargetCamera()
     {
         IPanel = ITarget.IndicatorPanel;
@@ -95,6 +95,7 @@ public class IndicatorTargetCamera : MonoBehaviour
         //  Now that the indicator panel exist, create the camera
         CreateTargetCamera();
     }
+    #endregion
 
     #region Create the target camera and indicator camera
     //  Creates the target camera, target's RenderTexture, and set-up UI stuff 

@@ -119,7 +119,7 @@ public class IndicatorDistanceTracker : MonoBehaviour
 	}
     #endregion
 
-    //  Using ienumerator because the indicator panel may not have been created yet thus we need to keep checking till it exist.
+    #region IEnumerator that checks for a indicator panel that may not have been created yet thus we need to keep checking till it exist.
     IEnumerator CoCreateDistanceTracker()
     {
         IPanel = ITarget.IndicatorPanel;
@@ -133,6 +133,7 @@ public class IndicatorDistanceTracker : MonoBehaviour
         //  Now that the indicator panel exist, create the tracker
         CreateDistanceTracker();
     }
+    #endregion
 
     #region Create the distance indicator
     void CreateDistanceTracker()

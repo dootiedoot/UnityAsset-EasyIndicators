@@ -12,7 +12,7 @@ public class IndicatorPanel : MonoBehaviour
     void Start()
     {
         if (OffScreen == null && OnScreen == null)
-            Debug.Log("IndicatorPanel's off-screen & on-screen gameobject are not assigned!");
+            Debug.Log("IndicatorPanel's off-screen & on-screen gameobject is not assigned!");
     }
 
     //  public calls for transition animations

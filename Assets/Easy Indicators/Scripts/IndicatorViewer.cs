@@ -82,13 +82,14 @@ public class IndicatorViewer : MonoBehaviour
 
     void OnDisable()
     {
-        StopCoroutine(UpdateIndicators());
+        StopAllCoroutines();
     }
 
-    //  Updates each indicator in the Targets list on a delay interval instad of every frame. (adjustable performance)
+    #region Updates each indicator in the Targets list on a delay interval instad of every frame. (adjustable performance)
     IEnumerator UpdateIndicators()
     {
-        while(true)
+        //  Using while loop with delay
+        while (true)
         {
             if (isTracking)
             {
@@ -105,6 +106,7 @@ public class IndicatorViewer : MonoBehaviour
             yield return new WaitForSeconds(UpdateInterval);
         }
     }
+    #endregion
 
     #region Create the indicator canvas
     //  Create a default canvas for the indicator panels and set parameters.

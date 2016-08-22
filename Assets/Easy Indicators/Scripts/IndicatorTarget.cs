@@ -62,6 +62,17 @@ public class IndicatorTarget : MonoBehaviour
             IPanel.gameObject.SetActive(false);
     }
 
+    void LateUpdate()
+    {
+        //  if the viewer is currently tracking...
+        if (IPanel != null && IndicatorViewer.IsTracking)
+            IPanel.gameObject.SetActive(true);
+
+        //  else if the viewer is not tracking...
+        else if (IPanel != null)
+            IPanel.gameObject.SetActive(false);
+    }
+
     #region Initial set-up of indicator
     //  Create & set-up the indicator panel
     private void InitializeIndicator()
@@ -113,18 +124,7 @@ public class IndicatorTarget : MonoBehaviour
     }
     #endregion
 
-    void LateUpdate()
-    {
-        //  if the viewer is currently tracking...
-        if (IPanel != null && IndicatorViewer.IsTracking)
-            IPanel.gameObject.SetActive(true);
-
-        //  else if the viewer is not tracking...
-        else if (IPanel != null)
-            IPanel.gameObject.SetActive(false);
-    }
-
-    #region Performs the calculations to update the position & rotation of the indicator panel of this target.
+    #region Update the position & rotation of the indicator panel of this target.
     //  Called from 'IndicatorViewer' script.
     public void UpdateIndicator()
     {
@@ -221,7 +221,7 @@ public class IndicatorTarget : MonoBehaviour
     }
     #endregion
 
-    //  Returns true if target is within the camera screen boundaries and it's near clipping plane.
+    #region Method that returns true if target is within the camera screen boundaries and it's near clipping plane.
     private bool OnScreen(Vector3 pos, Camera camera)
     {
         if (pos.x < (Screen.width * viewer.TargetEdgeDistance) && pos.x > (Screen.width - Screen.width * viewer.TargetEdgeDistance) && 
@@ -230,8 +230,9 @@ public class IndicatorTarget : MonoBehaviour
             return true;
         return false;
     }
+    #endregion
 
-    //  Returns false if indicator does not need to be disabled because either DisableOnDistance is false or distance is within threshold. 
+    #region  Method that returns false if indicator does not need to be disabled because either DisableOnDistance is false or distance is within threshold. 
     private bool CheckDisableOnDistance(float distance)
     {
         //  Check if indicator will disable on distance and check if distance is over the distance threshold
@@ -239,8 +240,9 @@ public class IndicatorTarget : MonoBehaviour
             return true;
         return false;
     }
+    #endregion
 
-    #region Update scale
+    #region Method that updates scale
     //  Updates the scaling of the UI based on distance provided
     private void UpdateScale(float distance)
     {
@@ -315,7 +317,7 @@ public class IndicatorTarget : MonoBehaviour
 
     #endregion
 
-    //  Returns the distance magnitude between two vector3 positions. (Faster then built-in Vector3.Distance function)
+    #region that returns the distance magnitude between two vector3 positions. (Faster then built-in Vector3.Distance function)
     private float GetDistance(Vector3 PosA, Vector3 PosB)
     {
         Vector3 heading;
@@ -328,6 +330,7 @@ public class IndicatorTarget : MonoBehaviour
         //  Return the sqaure root of the sum of each sqaured vector axises.
         return Mathf.Sqrt((heading.x * heading.x) + (heading.y * heading.y) + (heading.z * heading.z));
     }
+    #endregion
 
     #region OnScreen Tranisitions
 
@@ -436,13 +439,15 @@ public class IndicatorTarget : MonoBehaviour
 
     #endregion
 
-    //  Destory the indicator panel if this gameobject has been destroyed
+    #region OnDestory()
     void OnDestroy()
     {
         DestroyIndicator();
         //print("object was destroyed");
     }
+    #endregion
 
+    #region Method that handles destroying of indicator
     public void DestroyIndicator()
     {
         if (IPanel != null)
@@ -451,8 +456,9 @@ public class IndicatorTarget : MonoBehaviour
             Destroy(GetComponent<IndicatorTargetCamera>());
         Destroy(this);
     }
+    #endregion
 
-    //  Getters/Setters
+    #region Getters/Setters
     public IndicatorPanel IndicatorPanel
     {
         get { return IPanel; }
@@ -465,4 +471,5 @@ public class IndicatorTarget : MonoBehaviour
     {
         get { return distanceFromViewer; }
     }
+    #endregion
 }

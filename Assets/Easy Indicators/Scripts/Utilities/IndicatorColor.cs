@@ -51,10 +51,10 @@ public class IndicatorColor : MonoBehaviour
             StartCoroutine(CoChangeColor(newColor));
     }
 
-    //  Using ienumerator because the indicator panel may not have been created yet thus we need to keep checking. Will stop when color is finally changed.
+    #region IEnumerator that checks for a indicator panel that may not have been created yet thus we need to keep checking till it exist.
     IEnumerator CoChangeColor(Color newColor)
     {
-        yield return new WaitForSeconds(0.15f);
+        //yield return new WaitForSeconds(0.15f);
 
         //  Change color of all the indicator panel items
         IndicatorPanel IPanel = GetComponent<IndicatorTarget>().IndicatorPanel;
@@ -71,4 +71,5 @@ public class IndicatorColor : MonoBehaviour
             for (int i = 0; i < graphics.Length; i++)
                 graphics[i].color = newColor;
     }
+    #endregion
 }
