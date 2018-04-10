@@ -1,6 +1,8 @@
 # UnityAsset-EasyIndicators
 
-# Easy Indicators Manual
+# Easy Indicators: https://goo.gl/57z7cB
+# Support Form: https://goo.gl/j9TPAh
+# Bug/Suggestion list: https://goo.gl/XxnjNr
 
 ## A simple solution to On-Screen & Off-Screen indicators for Unity3D
 
@@ -16,7 +18,7 @@ That is it, just press Play! You should see the target with the On-Screen indica
 
 # Main Components
 ## IndicatorViewer
-        The IndicatorViewer will allow the camera see the indicators. It can be attached to any gameobject to act as the manager. This script is responsible for calling each gameobject with the IndicatorTarget script to update their tracking. The parameter and settings of the IndicatorViewer will default to all targets unless it is overridden in the target’s IndicatorTarget script.
+The IndicatorViewer will allow the camera see the indicators. It can be attached to any gameobject to act as the manager. This script is responsible for calling each gameobject with the IndicatorTarget script to update their tracking. The parameter and settings of the IndicatorViewer will default to all targets unless it is overridden in the target’s IndicatorTarget script.
 
 
 HOW-TO: Simply attach this script to a gameobject and assign the indicator panel prefab. Targets can also be added through code from this script.
@@ -82,9 +84,3 @@ Should you need any support, please leave a post in the asset’s thread HERE or
 ## Bug & Suggestions
 
 If you want to report a bug or suggest an improvement, please refer to bug/suggestion sheet HERE. If you can not find your bug/suggestion in the sheet then you can report it in this form HERE. It will help me keep track of the feedback and work on it as soon as I can.
-
-# Manual: https://goo.gl/57z7cB
-
-# Support Form: https://goo.gl/j9TPAh
-
-# Bug/Suggestion list: https://goo.gl/XxnjNr
