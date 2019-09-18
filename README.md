@@ -1,6 +1,6 @@
 # UnityAsset-EasyIndicators
 
-# Easy Indicators: https://goo.gl/57z7cB
+# Easy Indicators: https://goo.gl/57z7cB (Online Manual)
 
 ## A simple solution to On-Screen & Off-Screen indicators for Unity3D
 
