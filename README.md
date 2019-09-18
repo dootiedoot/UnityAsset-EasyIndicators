@@ -1,8 +1,6 @@
 # UnityAsset-EasyIndicators
 
 # Easy Indicators: https://goo.gl/57z7cB
-# Support Form: https://goo.gl/j9TPAh
-# Bug/Suggestion list: https://goo.gl/XxnjNr
 
 ## A simple solution to On-Screen & Off-Screen indicators for Unity3D
 
@@ -75,12 +73,3 @@ Get or Set the status of On-Screen tracking. Enabled by default.
 IndicatorViewer.TrackOffScreen
 Get or Set the status of Off-Screen tracking. Enabled by default.
 ```
-
-# Support
-## Getting Help
-
-Should you need any support, please leave a post in the asset’s thread HERE or email me directly at choang05@gmail.com. Please refer to the thread first before sending an email. When sending an email put a recognizable subject line such as ‘Easy Indicators support’ and I will try to help the best I can.
-
-## Bug & Suggestions
-
-If you want to report a bug or suggest an improvement, please refer to bug/suggestion sheet HERE. If you can not find your bug/suggestion in the sheet then you can report it in this form HERE. It will help me keep track of the feedback and work on it as soon as I can.
