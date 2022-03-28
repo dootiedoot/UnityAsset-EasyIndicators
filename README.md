@@ -73,3 +73,13 @@ Get or Set the status of On-Screen tracking. Enabled by default.
 IndicatorViewer.TrackOffScreen
 Get or Set the status of Off-Screen tracking. Enabled by default.
 ```
+
+# Demos
+## Super Smash Bros Example
+<img src='./media/13 - m5rxKGP.gif'>
+
+## Off-screen tracker Example
+<img src='./media/14 - Y1TNHw6.gif'>
+
+## Stress test Example
+<img src='./media/ezgif-5-32aaac91a9.gif'>
